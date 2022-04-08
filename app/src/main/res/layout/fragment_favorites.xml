@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="10"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/search_layout"
+        android:layout_width="@dimen/_220sdp"
+        android:layout_height="@dimen/_40sdp"
+
+        android:layout_marginEnd="@dimen/_20sdp"
+        android:layout_marginBottom="@dimen/_20sdp"
+
+        app:cardCornerRadius="@dimen/_4sdp"
+        app:layout_constraintBottom_toTopOf="@+id/rv2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/search_bar2"
+            android:layout_width="@dimen/_220sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:background="#e2f2f9"
+
+            android:drawableLeft="@drawable/ic_baseline_search_24"
+            android:hint="Search"
+            android:inputType="textPersonName"
+            android:padding="@dimen/_10sdp"
+            app:cardCornerRadius="@dimen/_2sdp" />
+
+
+    </androidx.cardview.widget.CardView>
+
+
+    <com.example.multipleimageconverter.recyclerview.RecyclerViewEmptySupport
+        android:id="@+id/rv2"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_400sdp"
+        android:layout_marginEnd="@dimen/_1sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!--    <androidx.constraintlayout.helper.widget.Flow-->
+    <!--        android:id="@+id/bottom_nav_layout"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:constraint_referenced_ids="home_ly,doc_ly,images_ly"-->
+    <!--        app:flow_maxElementsWrap="3"-->
+    <!--        app:flow_wrapMode="chain" />-->
+
+    <!--    &lt;!&ndash;        Home button&ndash;&gt;-->
+    <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--        android:id="@+id/home_ly"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content">-->
+
+    <!--        <androidx.appcompat.widget.AppCompatImageView-->
+    <!--            android:id="@+id/homefromDocuments"-->
+    <!--            style="@style/imageButton"-->
+    <!--            android:src="@drawable/home2"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/tv_1"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="@dimen/_20sdp"-->
+    <!--            android:text="Home"-->
+    <!--            android:textSize="@dimen/_10sdp"-->
+    <!--            app:layout_constraintEnd_toEndOf="@id/homefromDocuments"-->
+    <!--            app:layout_constraintStart_toStartOf="@id/homefromDocuments"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/homefromDocuments">-->
+
+
+    <!--        </TextView>-->
+
+    <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+    <!--    &lt;!&ndash;        Doc Button&ndash;&gt;-->
+    <!--    <androidx.appcompat.widget.LinearLayoutCompat-->
+    <!--        android:id="@+id/doc_ly"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical">-->
+
+    <!--        <androidx.appcompat.widget.AppCompatImageView-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="@dimen/_40sdp"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:gravity="center"-->
+    <!--            android:src="@drawable/doc2" />-->
+
+    <!--        <TextView-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="@dimen/_20sdp"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:gravity="center"-->
+    <!--            android:text="Document"-->
+    <!--            android:textSize="@dimen/_10sdp" />-->
+
+
+    <!--    </androidx.appcompat.widget.LinearLayoutCompat>-->
+
+    <!--    &lt;!&ndash;        Images Button&ndash;&gt;-->
+    <!--    <androidx.appcompat.widget.LinearLayoutCompat-->
+    <!--        android:id="@+id/images_ly"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical">-->
+
+    <!--        <androidx.appcompat.widget.AppCompatImageView-->
+    <!--            android:id="@+id/imageFromDocument"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="@dimen/_40sdp"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:gravity="center"-->
+    <!--            android:src="@drawable/ic_baseline_home_24" />-->
+
+    <!--        <TextView-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="@dimen/_20sdp"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:gravity="center"-->
+    <!--            android:text="Images"-->
+    <!--            android:textSize="@dimen/_10sdp" />-->
+    <!--    </androidx.appcompat.widget.LinearLayoutCompat>-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

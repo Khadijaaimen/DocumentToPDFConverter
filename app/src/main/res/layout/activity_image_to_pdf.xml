@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/imagetoPdfGone"
+    android:visibility="gone"
+    tools:context=".activity.ImageToPDF">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/myCoordinatorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#f6f6f6"
+        android:gravity="center">
+
+        <LinearLayout
+            android:id="@+id/toDoEmptyView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:gravity="center"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <!--    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="8dp"
+                        android:text="Tap"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="20sp" />-->
+
+                <!--
+                                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="5dp"
+
+                                    android:tint="@android:color/white"
+                                    app:backgroundTint="@color/colorAccent"
+                                    app:fabSize="mini" />
+                -->
+
+                <!--          <TextView
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:gravity="center"
+                              android:paddingTop="4dp"
+                              android:paddingBottom="8dp"
+                              android:text="to add image files "
+                              android:textColor="@android:color/darker_gray"
+                              android:textSize="20sp" />-->
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.example.multipleimageconverter.recyclerview.RecyclerViewEmptySupport
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:scrollingCache="true" />
+
+        <!--        <LinearLayout-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:id="@+id/parentfloatbutton"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_alignParentEnd="true"-->
+        <!--            android:layout_alignParentRight="true"-->
+        <!--            android:layout_alignParentBottom="true"-->
+        <!--            android:layout_gravity="bottom|end|right"-->
+        <!--            android:layout_marginBottom="47dp"-->
+        <!--            android:gravity="bottom|end|right"-->
+        <!--            android:orientation="vertical">-->
+
+        <!--            <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+        <!--                android:id="@+id/addFilesFAB"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_marginLeft="@dimen/spacing_smlarge"-->
+        <!--                android:layout_marginTop="@dimen/spacing_middle"-->
+        <!--                android:layout_marginRight="30dp"-->
+        <!--                android:src="@drawable/document"-->
+        <!--                android:layout_marginBottom="@dimen/spacing_middle"-->
+        <!--                android:tint="@android:color/white"-->
+        <!--                app:fabSize="mini" />-->
+
+        <!--            <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+        <!--                android:id="@+id/addCameraFAB"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_marginLeft="@dimen/spacing_smlarge"-->
+        <!--                android:layout_marginTop="@dimen/spacing_middle"-->
+        <!--                android:layout_marginRight="30dp"-->
+        <!--                android:src="@drawable/ic_baseline_photo_camera_24"-->
+        <!--                android:layout_marginBottom="@dimen/spacing_middle"-->
+        <!--                android:tint="@android:color/white"-->
+        <!--                app:fabSize="mini" />-->
+
+        <!--            <LinearLayout-->
+        <!--                android:id="@+id/lyt_addFiles"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:orientation="horizontal">-->
+
+        <!--                <androidx.cardview.widget.CardView-->
+        <!--                    android:layout_width="match_parent"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_gravity="center_vertical|end|right"-->
+        <!--                    android:layout_margin="@dimen/spacing_middle"-->
+        <!--                    app:cardBackgroundColor="@color/colorAccent"-->
+        <!--                    app:cardCornerRadius="3dp"-->
+        <!--                    app:cardElevation="2dp"-->
+        <!--                    app:contentPadding="@dimen/spacing_medium">-->
+
+        <!--                    <TextView-->
+        <!--                        android:layout_width="wrap_content"-->
+        <!--                        android:layout_height="match_parent"-->
+        <!--                        android:layout_gravity="center"-->
+        <!--                        android:gravity="center"-->
+        <!--                        android:text="Add Images"-->
+        <!--                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"-->
+        <!--                        android:textColor="@color/white" />-->
+
+        <!--                </androidx.cardview.widget.CardView>-->
+
+        <!--                <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+        <!--                    android:id="@+id/fabadd"-->
+        <!--                    android:layout_width="wrap_content"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_gravity="bottom|end"-->
+        <!--                    android:layout_marginLeft="@dimen/spacing_smlarge"-->
+        <!--                    android:layout_marginTop="@dimen/spacing_middle"-->
+        <!--                    android:layout_marginRight="@dimen/spacing_smlarge"-->
+        <!--                    android:src="@drawable/ic_baseline_add_24"-->
+        <!--                    android:layout_marginBottom="@dimen/spacing_middle"-->
+        <!--                    android:tint="@android:color/white"-->
+        <!--     />-->
+
+
+
+
+        <!--                <View-->
+        <!--                    android:layout_width="@dimen/spacing_xmedium"-->
+        <!--                    android:layout_height="0dp" />-->
+        <!--            </LinearLayout>-->
+
+        <!--            <LinearLayout-->
+        <!--                android:id="@+id/lyt_savegallery"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:orientation="horizontal">-->
+
+        <!--                <androidx.cardview.widget.CardView-->
+        <!--                    android:layout_width="match_parent"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_gravity="center_vertical|end|right"-->
+        <!--                    android:layout_margin="@dimen/spacing_middle"-->
+        <!--                    app:cardBackgroundColor="@color/colorAccent"-->
+        <!--                    app:cardCornerRadius="3dp"-->
+        <!--                    app:cardElevation="2dp"-->
+        <!--                    app:contentPadding="@dimen/spacing_medium">-->
+
+        <!--                    <TextView-->
+        <!--                        android:layout_width="wrap_content"-->
+        <!--                        android:layout_height="match_parent"-->
+        <!--                        android:layout_gravity="center"-->
+        <!--                        android:gravity="center"-->
+        <!--                        android:text="Save to Gallery"-->
+        <!--                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"-->
+        <!--                        android:textColor="@color/white" />-->
+
+        <!--                </androidx.cardview.widget.CardView>-->
+
+        <!--                <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+        <!--                    android:id="@+id/savetogallery"-->
+        <!--                    android:layout_width="wrap_content"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_gravity="bottom|end"-->
+        <!--                    android:layout_marginLeft="@dimen/spacing_smlarge"-->
+        <!--                    android:layout_marginTop="@dimen/spacing_middle"-->
+        <!--                    android:layout_marginRight="@dimen/spacing_smlarge"-->
+        <!--                    android:src="@drawable/ic_baseline_add_24"-->
+        <!--                    android:layout_marginBottom="@dimen/spacing_middle"-->
+        <!--                    android:tint="@android:color/white"-->
+        <!--                    />-->
+
+
+
+
+        <!--                <View-->
+        <!--                    android:layout_width="@dimen/spacing_xmedium"-->
+        <!--                    android:layout_height="0dp" />-->
+        <!--            </LinearLayout>-->
+
+
+
+        <!--            <LinearLayout-->
+        <!--                android:id="@+id/lyt_addCloudFiles"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:orientation="horizontal">-->
+
+        <!--                <androidx.cardview.widget.CardView-->
+        <!--                    android:layout_width="match_parent"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_gravity="center_vertical|end|right"-->
+        <!--                    android:layout_margin="@dimen/spacing_middle"-->
+        <!--                    app:cardBackgroundColor="@color/colorAccent"-->
+        <!--                    app:cardCornerRadius="3dp"-->
+        <!--                    app:cardElevation="2dp"-->
+        <!--                    app:contentPadding="@dimen/spacing_medium">-->
+
+        <!--                    <TextView-->
+        <!--                        android:layout_width="wrap_content"-->
+        <!--                        android:layout_height="match_parent"-->
+        <!--                        android:layout_gravity="center"-->
+        <!--                        android:gravity="center"-->
+        <!--                        android:text="Convert to PDF"-->
+        <!--                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"-->
+        <!--                        android:textColor="@color/white" />-->
+        <!--                </androidx.cardview.widget.CardView>-->
+
+        <!--                <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+        <!--                    android:id="@+id/converttopdf"-->
+        <!--                    android:layout_width="wrap_content"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_gravity="bottom|end"-->
+        <!--                    android:layout_marginLeft="@dimen/spacing_smlarge"-->
+        <!--                    android:layout_marginTop="@dimen/spacing_middle"-->
+        <!--                    android:layout_marginRight="@dimen/spacing_smlarge"-->
+        <!--                    android:layout_marginBottom="@dimen/spacing_middle"-->
+        <!--                    android:src="@drawable/pdf"-->
+        <!--                    android:scaleType="center"-->
+        <!--               />-->
+
+        <!--                <View-->
+        <!--                    android:layout_width="@dimen/spacing_xmedium"-->
+        <!--                    android:layout_height="0dp" />-->
+        <!--            </LinearLayout>-->
+
+        <!--            <LinearLayout-->
+        <!--                android:id="@+id/lyt_documentCollage"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:orientation="horizontal">-->
+
+        <!--&lt;!&ndash;                <androidx.cardview.widget.CardView&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_width="match_parent"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_height="wrap_content"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_gravity="center_vertical|end|right"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_margin="@dimen/spacing_middle"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    app:cardBackgroundColor="@color/colorAccent"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    app:cardCornerRadius="3dp"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    app:cardElevation="2dp"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    app:contentPadding="@dimen/spacing_medium">&ndash;&gt;-->
+
+        <!--&lt;!&ndash;&lt;!&ndash;                    <TextView&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;                        android:layout_width="wrap_content"&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;                        android:layout_height="wrap_content"&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;                        android:layout_gravity="center"&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;                        android:gravity="center"&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;                        android:text="Document Collage (Beta)"&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;                        android:textColor="@color/white" />&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;                </androidx.cardview.widget.CardView>&ndash;&gt;-->
+
+        <!--&lt;!&ndash;                <com.google.android.material.floatingactionbutton.FloatingActionButton&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:id="@+id/collageit"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_width="wrap_content"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_height="wrap_content"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_gravity="bottom|end"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_marginLeft="@dimen/spacing_smlarge"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_marginTop="@dimen/spacing_middle"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_marginRight="@dimen/spacing_smlarge"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:layout_marginBottom="@dimen/spacing_middle"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    android:tint="@android:color/white"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    app:srcCompat="@drawable/collage"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    />&ndash;&gt;-->
+        <!--&lt;!&ndash;                app:srcCompat="@drawable/ic_image_to_pdf" />&ndash;&gt;-->
+
+        <!--                <View-->
+        <!--                    android:layout_width="@dimen/spacing_xmedium"-->
+        <!--                    android:layout_height="0dp" />-->
+        <!--            </LinearLayout>-->
+
+        <!--        </LinearLayout>-->
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
