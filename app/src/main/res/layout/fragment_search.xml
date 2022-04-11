@@ -35,7 +35,7 @@
     </androidx.cardview.widget.CardView>
 
 
-    <com.example.multipleimageconverter.recyclerview.RecyclerViewEmptySupport
+    <com.example.multipleimageconverter.RecyclerViewEmptySupport
         android:id="@+id/recyclerView2"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_400sdp"

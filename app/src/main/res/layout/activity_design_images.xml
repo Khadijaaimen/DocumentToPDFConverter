@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:weightSum="10"
     android:orientation="vertical"
-    tools:context=".activity.DesignImages">
+    tools:context=".DesignImages">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/search_layout"
@@ -36,7 +36,7 @@
     </androidx.cardview.widget.CardView>
 
 
-    <com.example.multipleimageconverter.recyclerview.RecyclerViewEmptySupport
+    <com.example.multipleimageconverter.RecyclerViewEmptySupport
         android:id="@+id/recyclerView2"
         android:layout_width="394dp"
         android:layout_height="735dp"

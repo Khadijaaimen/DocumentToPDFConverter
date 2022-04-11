@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:id="@+id/imagetoPdfGone"
     android:visibility="gone"
-    tools:context=".activity.ImageToPDF">
+    tools:context=".ImageToPDF">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/myCoordinatorLayout"
@@ -67,7 +67,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <com.example.multipleimageconverter.recyclerview.RecyclerViewEmptySupport
+        <com.example.multipleimageconverter.RecyclerViewEmptySupport
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

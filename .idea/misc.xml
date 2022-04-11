@@ -75,38 +75,16 @@
         <entry key="..\:/UprockProjects/PdfScannerProject/multipleimageconverter/app/src/main/res/menu/menu_pdfcreater.xml" value="0.19786324786324785" />
         <entry key="..\:/UprockProjects/PdfScannerProject/multipleimageconverter/app/src/main/res/menu/sort_menu.xml" value="0.19786324786324785" />
         <entry key="..\:/UprockProjects/PdfScannerProject/multipleimageconverter/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.20843881856540084" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_cropped_test.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_design_images.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_design_pdf_creator.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_display.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_documents.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_filteractivity.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_image_design_document.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_image_detail.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_image_to_pdf.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_images_saved.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_main.xml" value="0.1403985507246377" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_pdf_creater.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_qrcode.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_ready_to_share.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/app_bar_main.xml" value="0.22" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/bottom_sheet.xml" value="0.16666666666666666" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/collagesave.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/content_main.xml" value="0.11277173913043478" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/customdialog.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/customdialogueqrcode.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/file_alert_dialog.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/filter_activity_for_testing.xml" value="0.17864583333333334" />
+        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/drawable/bg_round.xml" value="0.1495" />
+        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_cropped_test.xml" value="0.22" />
+        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_design_images.xml" value="0.17864583333333334" />
+        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_display.xml" value="0.17864583333333334" />
+        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_filteractivity.xml" value="0.17864583333333334" />
+        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/activity_image_design_document.xml" value="0.17864583333333334" />
+        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/file_alert_dialog.xml" value="0.17864583333333334" />
         <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/fragment_favorites.xml" value="0.17864583333333334" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/item_file.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/item_grid_image.xml" value="0.17864583333333334" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/item_loading.xml" value="0.1408514492753623" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/mainitemgrid.xml" value="0.17864583333333334" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/nav_header_main.xml" value="0.17864583333333334" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/pdfcreater_viewer.xml" value="0.17864583333333334" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/privacy_layout.xml" value="0.17864583333333334" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/progress_dialog.xml" value="0.17864583333333334" />
-        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/sheet_list.xml" value="0.1" />
+        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/fragment_home.xml" value="0.17864583333333334" />
+        <entry key="..\:/Users/EliteBook/AndroidStudioProjects/ImagetoPDFConverterApp/app/src/main/res/layout/progress_dialog.xml" value="0.16666666666666666" />
         <entry key="..\:/Users/LINE/AndroidStudioProjects/multipleimageconverter/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.25333333333333335" />
         <entry key="..\:/Users/LINE/AndroidStudioProjects/multipleimageconverter/app/src/main/res/drawable/ic_baseline_keyboard_arrow_down_24.xml" value="0.25729166666666664" />
         <entry key="..\:/Users/LINE/AndroidStudioProjects/multipleimageconverter/app/src/main/res/layout/activity_cropped.xml" value="0.24114583333333334" />

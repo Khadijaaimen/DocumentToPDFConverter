@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/savePDFLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,9 +10,7 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:baselineAligned="false">
-
+        android:layout_height="?attr/actionBarSize">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -22,7 +20,8 @@
                 android:id="@+id/bt_close"
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
-                android:background="?attr/selectableItemBackgroundBorderless" />
+                android:background="?attr/selectableItemBackgroundBorderless"
+            />
 
             <TextView
                 android:layout_width="0dp"
@@ -44,13 +43,11 @@
 
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:orientation="vertical">
-
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -62,7 +59,7 @@
                 android:hint="ENTER FILE NAME"
                 android:inputType="textPersonName"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:singleLine="true"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,7 +75,7 @@
             style="@style/Base.Widget.AppCompat.Spinner.Underlined"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:spinnerMode="dialog" />
+            android:spinnerMode="dialog"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -92,7 +89,7 @@
             style="@style/Base.Widget.AppCompat.Spinner.Underlined"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:spinnerMode="dialog" />
+            android:spinnerMode="dialog"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -106,7 +103,7 @@
             style="@style/Base.Widget.AppCompat.Spinner.Underlined"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:spinnerMode="dialog" />
+            android:spinnerMode="dialog"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -120,15 +117,15 @@
             style="@style/Base.Widget.AppCompat.Spinner.Underlined"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:spinnerMode="dialog" />
+            android:spinnerMode="dialog"/>
 
-        <!--        <androidx.appcompat.widget.AppCompatCheckBox-->
-        <!--            android:id="@+id/securePDF"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_marginTop="10dp"-->
-        <!--            android:layout_marginBottom="10dp"-->
-        <!--            android:text="SECURE PDF" />-->
+<!--        <androidx.appcompat.widget.AppCompatCheckBox-->
+<!--            android:id="@+id/securePDF"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:layout_marginBottom="10dp"-->
+<!--            android:text="SECURE PDF" />-->
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/editTextPassword"

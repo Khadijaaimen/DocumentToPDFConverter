@@ -279,7 +279,7 @@
     </RelativeLayout>
 
     <!--            Rv layout **************************************************-->
-    <com.example.multipleimageconverter.recyclerview.RecyclerViewEmptySupport
+    <com.example.multipleimageconverter.RecyclerViewEmptySupport
         android:id="@+id/rv"
         android:layout_width="match_parent"
         android:layout_height="0dp"

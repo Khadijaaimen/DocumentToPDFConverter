@@ -11,10 +11,8 @@
         android:id="@+id/search_layout"
         android:layout_width="@dimen/_220sdp"
         android:layout_height="@dimen/_40sdp"
-
         android:layout_marginEnd="@dimen/_20sdp"
         android:layout_marginBottom="@dimen/_20sdp"
-
         app:cardCornerRadius="@dimen/_4sdp"
         app:layout_constraintBottom_toTopOf="@+id/rv2"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,7 +35,7 @@
     </androidx.cardview.widget.CardView>
 
 
-    <com.example.multipleimageconverter.recyclerview.RecyclerViewEmptySupport
+    <com.example.multipleimageconverter.RecyclerViewEmptySupport
         android:id="@+id/rv2"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_400sdp"

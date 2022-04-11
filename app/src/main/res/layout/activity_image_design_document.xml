@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="10"
+    android:orientation="vertical"
+    tools:context=".DesignFirstActivity">
+
+    <EditText
+        android:id="@+id/search_bar2"
+        android:layout_width="@dimen/_220sdp"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_baseline_search_24"
+        android:drawableLeft="@drawable/ic_baseline_search_24"
+        android:layout_gravity="start"
+        android:hint="Search"
+        android:inputType="textPersonName"
+        android:padding="@dimen/_16sdp"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:id="@+id/rv2"
+        android:layout_height="match_parent" />
+ </androidx.appcompat.widget.LinearLayoutCompat>
+

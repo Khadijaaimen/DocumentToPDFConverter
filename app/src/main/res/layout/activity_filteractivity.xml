@@ -7,7 +7,7 @@
     android:id="@+id/ll"
     android:orientation="vertical"
     android:layout_height="match_parent"
-    tools:context=".activity.FilterActivityForTesting">
+    tools:context=".FilterActivityForTesting">
 
 <!--    <ImageView-->
 <!--        android:id="@+id/image_testing"-->

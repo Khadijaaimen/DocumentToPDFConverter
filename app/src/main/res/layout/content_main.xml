@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/white"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".activity.MainActivity"
+    tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
 
 
@@ -78,7 +78,7 @@
 
     </LinearLayout>
 
-    <com.example.multipleimageconverter.recyclerview.RecyclerViewEmptySupport
+    <com.example.multipleimageconverter.RecyclerViewEmptySupport
         android:id="@+id/rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
