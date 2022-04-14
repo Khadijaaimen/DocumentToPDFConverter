@@ -79,6 +79,8 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     RelativeLayout scanner_ly;
     RelativeLayout qr_ly;
     private MainAdapter mAdapter;
+    final int CAMERA_PERM = 1;
+    boolean CameraPermission = false;
 
     private android.view.ActionMode actionMode;
     private static final int RQS_OPEN_DOCUMENT_TREE_ALL = 43;
@@ -101,10 +103,11 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     public void onResume() {
         super.onResume();
 
-        if(!Permissions.isPermissionGranted(getActivity())){
+        if (!Permissions.isPermissionGranted(getActivity())) {
+
             new AlertDialog.Builder(getActivity())
                     .setTitle("All files Permission")
-                    .setMessage("To get a look at all your documents. Please enable the \bAccess to all files\b permission. ")
+                    .setMessage(R.string.message)
                     .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -114,33 +117,105 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                     .setNegativeButton("Deny", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
+                            dialog.dismiss();
                         }
                     })
                     .setIcon(R.drawable.pdffinal)
                     .show();
-
         }
     }
 
     private void takePermission() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                 intent.addCategory("android.intent.category.DEFAULT");
                 Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
                 intent.setData(uri);
                 startActivityForResult(intent, 101);
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                 startActivityForResult(intent, 101);
             }
-        } else{
+        } else {
             ActivityCompat.requestPermissions(getActivity(), new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA
+                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
             }, 101);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
+
+        if (requestCode == 101) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                boolean readTxt = true;
+                if (!readTxt) {
+                    takePermission();
+                }
+            }
+        }
+
+        if (requestCode == CAMERA_PERM) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                CameraPermission = true;
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.CAMERA)) {
+                    new androidx.appcompat.app.AlertDialog.Builder(getActivity())
+                            .setTitle("Permission")
+                            .setMessage("Please provide camera permission for using all the features of this app")
+                            .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, CAMERA_PERM);
+                                }
+                            }).setNegativeButton("Deny", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).create().show();
+
+                } else {
+
+                    new androidx.appcompat.app.AlertDialog.Builder(getActivity())
+                            .setTitle("Permission")
+                            .setMessage("You have denied some permissions. Allow all permission at [Settings] > [Permissions]")
+                            .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                            Uri.fromParts("package", getActivity().getPackageName(), null));
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                    getActivity().finish();
+                                }
+                            }).setNegativeButton("Exit app", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            dialog.dismiss();
+                            getActivity().finish();
+
+                        }
+                    }).create().show();
+                }
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void askPermission() {
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, CAMERA_PERM);
+            } else {
+                CameraPermission = true;
+            }
         }
     }
 
@@ -159,9 +234,10 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         scanner_ly.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                if (CameraPermission) {
+                askPermission();
+                if (CameraPermission) {
                     StartMergeActivity("CameraActivity");
-//                }
+                }
             }
         });
         idCardLayout = view.findViewById(R.id.idcard_ly);
@@ -199,28 +275,28 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
 
         searchView.addTextChangedListener(new TextWatcher() {
-              @Override
-              public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                                              @Override
+                                              public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-              }
+                                              }
 
-              @Override
-              public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                                              @Override
+                                              public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                  mAdapter.getFilter().filter(charSequence);
-                  search = charSequence;
-                  //                return false;
-                  mAdapter.notifyDataSetChanged();
+                                                  mAdapter.getFilter().filter(charSequence);
+                                                  search = charSequence;
+                                                  //                return false;
+                                                  mAdapter.notifyDataSetChanged();
 
-                  //
+                                                  //
 
-              }
+                                              }
 
-              @Override
-              public void afterTextChanged(Editable editable) {
-              }
+                                              @Override
+                                              public void afterTextChanged(Editable editable) {
+                                              }
 
-          }
+                                          }
         );
 
         RelativeLayout maddCameraFAB = view.findViewById(R.id.mainaddCameraFAB);
@@ -234,7 +310,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setHasFixedSize(true);
 
-
         CreateDataSource();
         InitBottomSheetProgress();
         return view;
@@ -242,6 +317,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
 
     public void StartMergeActivity(String message) {
+        askPermission();
         Intent intent = new Intent(getActivity(), ImageToPDF.class);
         intent.putExtra("ActivityAction", message);
         startActivityForResult(intent, Merge_Request_CODE);
@@ -865,22 +941,4 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
         }
     }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
-
-        if (requestCode == 101) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                boolean readTxt = true;
-                if (!readTxt) {
-                    takePermission();
-                }
-            }
-        }
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-
 }

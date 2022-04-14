@@ -163,15 +163,18 @@ public class CroppedActivity extends AppCompatActivity {
                     // file name will be current time in millis which will always be unique
                     String fileName = System.currentTimeMillis() + ".png";
                     File savedFile = bitmapToFile(croppedBitmap, fileName);
+
                     // get uri from file and add it to cropped uri list
                     croppedUriList.add(Uri.fromFile(savedFile));
                     selectedUriList.set(processedImage, Uri.fromFile(savedFile));
+
 //                    Toast.makeText(this, "CurrentPos : " + selectedUriList.get(processedImage), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(context, FilterActivityForTesting.class);
                     Bundle bundle = new Bundle();
                     // send croppedUriList to next activity
                     bundle.putParcelableArrayList("mycroppedlist", selectedUriList);
                     intent.putExtras(bundle);
+
                     // send croppedUriList to next activity
                     startActivity(intent);
                 } else if (selectedUriList.size() == 1) {

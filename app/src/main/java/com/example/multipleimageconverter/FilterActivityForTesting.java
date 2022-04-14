@@ -6,24 +6,17 @@ import static android.content.ContentValues.TAG;
 import static android.os.Environment.getExternalStorageDirectory;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.ImageDecoder;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -35,14 +28,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatSpinner;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -55,7 +45,6 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
-import com.zomato.photofilters.BuildConfig;
 import com.zomato.photofilters.FilterPack;
 import com.zomato.photofilters.imageprocessors.Filter;
 import com.zomato.photofilters.utils.ThumbnailItem;
@@ -64,7 +53,6 @@ import com.zomato.photofilters.utils.ThumbnailsManager;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +85,10 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
     ArrayList<Uri> arrayListCropped;
     ArrayList<Bitmap> filterImage = new ArrayList<>();
     ArrayList<Uri> finalBitmapList = new ArrayList<>();
+
+    ArrayList<Filter> selectedFilters = new ArrayList<>();
+    ArrayList<Bitmap> selectedFiltersBitmap = new ArrayList<>();
+    Integer selectedImageIndex = 0;
 
     static {
         System.loadLibrary("NativeImageProcessor");
@@ -160,63 +152,37 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         filterNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                filterListSize.setText(currentCountFilter + 1 + "/" + String.valueOf(arrayListCropped.size()));
-                if (FilterImage != null) {
-//                    File finalFile = bitmapToFile(FilterImage, "" + currentcountfilter);
-//                    Uri finalUri = Uri.fromFile(finalFile);
-//                    finalBitmapList.add(finalUri);
-                    // FIXME: 14/02/2022 here....
+                Glide.with(getApplicationContext())
+                        .load(selectedFilters.get(++selectedImageIndex).processFilter(selectedFiltersBitmap.get(selectedImageIndex)))
+                        .into(imageView);
+
+                filterListSize.setText(selectedImageIndex + 1 + "/" + String.valueOf(arrayListCropped.size()));
+
+                if (selectedImageIndex + 1 >= arrayListCropped.size()) {
+                    filterNext.setVisibility(View.GONE);
                 }
-                if (currentCountFilter < maxcountiflter) {
-                    if (filterCount > currentCountFilter)
-                        filterCount = currentCountFilter;
-                    Log.i("currentcount", "current count Filter is :" + currentCountFilter);
-                    Log.i("currentcount", "maxcountiflter Filter is :" + maxcountiflter);
-                    Log.i("currentcount", "filterCount Filter is :" + filterCount);
-                    Glide.with(getApplicationContext())
-                            .load(arrayListCropped.get(currentCountFilter))
-                            .into(imageView);
-                    prepare(Utils.uriToBitmap(getApplicationContext(), arrayListCropped.get(currentCountFilter)));
-                    filterCount++;
-                    currentCountFilter++;
-                    filterImage.add(FilterImage);
-                    if (arrayListCropped.size() == currentCountFilter) {
-                        filterNext.setVisibility(View.GONE);
-                        imageReverseFilter.setVisibility(View.VISIBLE);
-                    }
-                    Log.i("listpos", "Current List size : " + arrayListCropped);
-                }
+
+                imageReverseFilter.setVisibility(View.VISIBLE);
+
             }
         });
 
         imageReverseFilter.setOnClickListener(new View.OnClickListener() {
-
-            int maxcountiflter = finalBitmapList.size();
-
             @Override
             public void onClick(View view) {
-
                 imageView.setImageURI(arrayListCropped.get(currentCountFilter - 1));
-                filterListSize.setText(String.valueOf(currentCountFilter) + "/" + String.valueOf(arrayListCropped.size()));
 
-                if (currentCountFilter > maxcountiflter) {
-                    if (filterCount < currentCountFilter)
-                        filterCount = currentCountFilter;
-                    Log.i("currentcount", "current count Filter is :" + currentCountFilter);
-                    Log.i("currentcount", "maxcountiflter Filter is :" + maxcountiflter);
-                    Log.i("currentcount", "filterCount Filter is :" + filterCount);
-                    filterCount--;
-                    currentCountFilter--;
-                }
-                prepare(Utils.uriToBitmap(getApplicationContext(), arrayListCropped.get(currentCountFilter)));
+                Glide.with(getApplicationContext())
+                        .load(selectedFilters.get(--selectedImageIndex).processFilter(selectedFiltersBitmap.get(selectedImageIndex)))
+                        .into(imageView);
 
-                if (currentCountFilter - 1 == arrayListCropped.indexOf(0)) {
-                    filterCount--;
+                filterListSize.setText(selectedImageIndex + 1 + "/" + String.valueOf(arrayListCropped.size()));
+
+                if (selectedImageIndex <= 0) {
                     imageReverseFilter.setVisibility(View.GONE);
-                    filterNext.setVisibility(View.VISIBLE);
                 }
 
-
+                filterNext.setVisibility(View.VISIBLE);
             }
         });
         InitBottomSheetProgress();
@@ -225,7 +191,6 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
             @RequiresApi(api = Build.VERSION_CODES.Q)
             @Override
             public void onClick(View v) {
-
                 myCustomAlertDialog();
 
             }
@@ -306,6 +271,17 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
 
     }
 
+    public ArrayList<Uri> getImageUri(Context inContext, ArrayList<Bitmap> inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        String path;
+        for(int i=0; i<inImage.size(); i++) {
+            inImage.get(i).compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage.get(i), "Image", null);
+            finalBitmapList.add(Uri.parse(path));
+        }
+        return finalBitmapList;
+    }
+
 
     public void prepare(Bitmap bitmap) {
         Bitmap thumbImage;
@@ -335,6 +311,16 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
 
         List<ThumbnailItem> myList = ThumbnailsManager.processThumbs(FilterActivityForTesting.this);
         items.addAll(myList);
+
+        selectedFilters.clear();
+        selectedFiltersBitmap.clear();
+        for (int i = 0; i < arrayListCropped.size(); i++) {
+            selectedFilters.add(items.get(0).filter);
+            Bitmap selectedFilterBitmap = Utils.uriToBitmap(getApplicationContext(), arrayListCropped.get(i));
+            selectedFilterBitmap = selectedFilterBitmap.copy(Bitmap.Config.ARGB_8888, true);
+            selectedFiltersBitmap.add(selectedFilterBitmap);
+        }
+
         mAdapter.notifyDataSetChanged();
     }
 
@@ -371,11 +357,6 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         _dialogsave.setOnClickListener(view -> saveImageToGallery());
 
         _dialogconverttopdf.setOnClickListener(view -> {
-
-            for (Uri uri : arrayListCropped) {
-                ImageDocument document = new ImageDocument(uri, FilterActivityForTesting.this);
-                addToDataStore(document);
-            }
             // FIXME: 07/02/2022 For each laga k
 /*            steps ; arraylistcropped py foreach laga
                     index items ko document me pass kr
@@ -396,6 +377,12 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private void convertToPDF() {
         mainActivity = this;
+        getImageUri(mainActivity, selectedFiltersBitmap);
+        for (Uri uri : finalBitmapList) {
+            ImageDocument document = new ImageDocument(uri, FilterActivityForTesting.this);
+            documents.add(document);
+            mAdapter.notifyItemInserted(documents.size());
+        }
         if (filterImage.size() < 1) {
             Toast.makeText(this, "You need to add at least 1 image file", Toast.LENGTH_LONG).show();
         } else {
@@ -458,14 +445,15 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
                     dialog.dismiss();
                     Intent intent = new Intent(this, MainActivity.class);
                     startActivity(intent);
+                    mAdapter.notifyDataSetChanged();
                 } else {
                     Snackbar.make(v, "File name should not be empty", Snackbar.LENGTH_LONG).show();
                 }
-        });
+            });
+
+        }
 
     }
-
-}
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent result) {
@@ -549,43 +537,25 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
     }
 
     @Override
-    public void onFilterSelected(@NonNull Filter filter) {
+    public void onBackPressed() {
+        Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onFilterSelected(Filter filter) {
         try {
-            Uri countGotUri;
-            int list_size = arrayListCropped.size();
-            if (filterCount <= list_size) {
-                countGotUri = arrayListCropped.get(filterCount);
-                //TODO: yahan changing kr rha hn
-
-
-                /*String fileName = System.currentTimeMillis() + ".png";
-                File savedFile = bitmapToFile( countGotUri, fileName);
-                finalBitmapList.add(Uri.fromFile(savedFile));*/
-
-
-                Log.i("filterClick", "inside " + countGotUri);
-            } else {
-                countGotUri = arrayListCropped.get(list_size);
-                Log.i("filterClick", "outside " + countGotUri);
-            }
-            FilterImage = Utils.uriToBitmap(getApplicationContext(), countGotUri);
+            FilterImage = Utils.uriToBitmap(getApplicationContext(), arrayListCropped.get(selectedImageIndex));
             FilterImage = FilterImage.copy(Bitmap.Config.ARGB_8888, true);
 
+            selectedFilters.set(selectedImageIndex, filter);
+            selectedFiltersBitmap.set(selectedImageIndex, FilterImage);
+
             Glide.with(getApplicationContext()).load(filter.processFilter(FilterImage)).into(imageView);
-            Log.i("filterClick", "onFilterSelected: Name  : " + filter.getName());
-            Log.i("filterClick", "onFilterSelected Bitmap : " + FilterImage);
-            Log.i("filterClick", "onFilterSelected count  : " + filterCount);
-            Log.i("filterClick", "onFilterSelected Uri List : " + arrayListCropped.size());
 
         } catch (Exception e) {
             e.printStackTrace();
             Log.e("filterClick", "onFilterSelected: Error we got : " + e.getLocalizedMessage());
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
-        startActivity(intent);
     }
 }

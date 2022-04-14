@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -77,6 +78,53 @@ public class FavoritesFragment extends Fragment implements MainRecycleViewAdapte
     CharSequence search = "";
     TextView progressBarPercentage;
     EditText searchView;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(!Permissions.isPermissionGranted(getActivity())){
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("All files Permission")
+                    .setMessage(R.string.message)
+                    .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            takePermission();
+                        }
+                    })
+                    .setNegativeButton("Deny", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .setIcon(R.drawable.pdffinal)
+                    .show();
+
+        }
+    }
+
+    private void takePermission() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                intent.addCategory("android.intent.category.DEFAULT");
+                Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+                intent.setData(uri);
+                startActivityForResult(intent, 101);
+            } catch (Exception e){
+                e.printStackTrace();
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivityForResult(intent, 101);
+            }
+        } else{
+            ActivityCompat.requestPermissions(getActivity(), new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, 101);
+        }
+    }
 
     @Nullable
     @Override
