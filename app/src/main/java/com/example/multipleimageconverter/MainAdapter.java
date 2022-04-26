@@ -2,23 +2,37 @@ package com.example.multipleimageconverter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.pdf.PdfRenderer;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.paginate.Paginate;
+import com.example.multipleimageconverter.util.Utils;
+import com.shockwave.pdfium.PdfDocument;
+import com.shockwave.pdfium.PdfiumCore;
+import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,16 +40,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class MainAdapter extends RecyclerView.Adapter<MainViewHolder> {
-    Context context;
-    List<File> pdfArrayList = new ArrayList<>();
-    final int VIEW_TYPE_ITEM = 0;
-    final int VIEW_TYPE_LOADING = 1;
+import okhttp3.internal.Util;
 
-    SparseBooleanArray selected_items;
-    int current_selected_idx = -1;
-    MainAdapter.OnItemClickListener mOnItemClickListener;
+public class MainAdapter extends RecyclerView.Adapter<MainViewHolder> {
+    private Context context;
+    List<File> pdfArrayList = new ArrayList<>();
+
+    private final int VIEW_TYPE_ITEM = 0;
+    private final int VIEW_TYPE_LOADING = 1;
+
+    private SparseBooleanArray selected_items;
+    private int current_selected_idx = -1;
+    private MainAdapter.OnItemClickListener mOnItemClickListener;
     List<File> filteredUserDataList;
+    int pageCount = 0;
 
     public MainAdapter(Context context, List<File> pdfArrayList, OnItemClickListener mOnItemClickListener) {
         this.context = context;
@@ -48,7 +66,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainViewHolder> {
     public interface OnItemClickListener {
         void onItemClick(View view, File value, int position);
 
-        void onItemLongClick(View view, File obj, int pos);
+//        void onItemLongClick(View view, File obj, int pos);
     }
 
     public void setOnItemClickListener(MainAdapter.OnItemClickListener mItemClickListener) {
@@ -73,7 +91,11 @@ public class MainAdapter extends RecyclerView.Adapter<MainViewHolder> {
     public void onBindViewHolder(@NonNull MainViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if (holder instanceof MainViewHolder) {
 
-            populateItemRows((MainViewHolder) holder, position);
+            try {
+                populateItemRows((MainViewHolder) holder, position);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else if (holder instanceof LoadingViewHolder) {
             showLoadingView((LoadingViewHolder) holder, position);
         }
@@ -205,12 +227,27 @@ public class MainAdapter extends RecyclerView.Adapter<MainViewHolder> {
         public LoadingViewHolder(View view) {
 
 
-                super(view);
-                progressBar = itemView.findViewById(R.id.progressBar);
-            }
+            super(view);
+            progressBar = itemView.findViewById(R.id.progressBar);
         }
+    }
 
-    private void populateItemRows(MainViewHolder viewHolder, int position) {
+    private Bitmap pdfToBitmap(File pdfFile) throws IOException {
+        ParcelFileDescriptor fileDescriptor = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY);
+        PdfRenderer renderer = new PdfRenderer(fileDescriptor);
+        pageCount = renderer.getPageCount();
+        if(pageCount>0) {
+            PdfRenderer.Page page = renderer.openPage(0);
+            Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            page.close();
+
+            return bitmap;
+        }
+         return null;
+    }
+
+    private void populateItemRows(MainViewHolder viewHolder, int position) throws IOException {
 
         File file = filteredUserDataList.get(position);
 
@@ -222,12 +259,24 @@ public class MainAdapter extends RecyclerView.Adapter<MainViewHolder> {
         String strDate = formatter.format(lastModDate);
         viewHolder.brief.setText(strDate);
 
-        Glide.with(context)
-                .load(pdfArrayList.get(position))
-                .placeholder(R.drawable.document)
-                .centerCrop()
-                .transition(DrawableTransitionOptions.withCrossFade(500))
-                .into(viewHolder.pdf_imageView);
+        if (pdfArrayList.get(position).getName().contains(".pdf")) {
+            Bitmap uri = pdfToBitmap(pdfArrayList.get(position));
+            assert uri != null;
+            Drawable d = new BitmapDrawable(context.getResources(), uri);
+            viewHolder.pageCount.setText(String.valueOf(pageCount));
+            viewHolder.pdf_imageView.setImageDrawable(d);
+//            Picasso.get().load(String.valueOf(d))
+//                    .placeholder(R.drawable.pdffinal)
+//                    .resize(40, 50)
+//                    .centerCrop()
+//                    .into(viewHolder.pdf_imageView);
+        } else {
+            Picasso.get().load(pdfArrayList.get(position))
+                    .placeholder(R.drawable.pdffinal)
+                    .into(viewHolder.pdf_imageView);
+            viewHolder.pageCount.setVisibility(View.GONE);
+            viewHolder.docImage.setVisibility(View.GONE);
+        }
 
         viewHolder.lyt_parentdocument.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -235,6 +284,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainViewHolder> {
 
                 if (mOnItemClickListener == null) return;
                 mOnItemClickListener.onItemClick(view, file, position);
+
+
             }
         });
 
@@ -243,7 +294,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainViewHolder> {
             public boolean onLongClick(View v) {
 
                 if (mOnItemClickListener == null) return false;
-                mOnItemClickListener.onItemLongClick(v, file, position);
+//                mOnItemClickListener.onItemLongClick(v, file, position);
                 return true;
             }
         });
@@ -265,6 +316,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainViewHolder> {
     }
 
     private void showLoadingView(LoadingViewHolder viewHolder, int position) {
+        //ProgressBar would be displayed
+
 
     }
 }

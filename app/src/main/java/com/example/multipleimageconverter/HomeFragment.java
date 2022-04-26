@@ -8,17 +8,19 @@ import static com.example.multipleimageconverter.R.drawable.ic_baseline_keyboard
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -42,7 +44,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
@@ -51,6 +52,7 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationView;
@@ -73,7 +75,7 @@ import java.util.List;
 
 public class HomeFragment extends Fragment implements NavigationView.OnNavigationItemSelectedListener, MainRecycleViewAdapter.OnItemClickListener {
     private static final int Merge_Request_CODE = 42;
-    private RecyclerViewEmptySupport recyclerView;
+    RecyclerView recyclerView;
     List<File> pdfArrayList;
     List<File> items = null;
     RelativeLayout scanner_ly;
@@ -100,63 +102,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     List<Uri> files;
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        if (!Permissions.isPermissionGranted(getActivity())) {
-
-            new AlertDialog.Builder(getActivity())
-                    .setTitle("All files Permission")
-                    .setMessage(R.string.message)
-                    .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            takePermission();
-                        }
-                    })
-                    .setNegativeButton("Deny", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    })
-                    .setIcon(R.drawable.pdffinal)
-                    .show();
-        }
-    }
-
-    private void takePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            try {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                intent.addCategory("android.intent.category.DEFAULT");
-                Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
-                intent.setData(uri);
-                startActivityForResult(intent, 101);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                startActivityForResult(intent, 101);
-            }
-        } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
-            }, 101);
-        }
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
-
-        if (requestCode == 101) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                boolean readTxt = true;
-                if (!readTxt) {
-                    takePermission();
-                }
-            }
-        }
 
         if (requestCode == CAMERA_PERM) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -219,12 +165,45 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         }
     }
 
+    private void CheckStoragePermission() {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                alertDialog.setTitle("Storage Permission");
+                alertDialog.setMessage("Storage permission is required in order to " +
+                        "provide Image to PDF feature, please enable permission in app settings");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Settings",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID));
+                                startActivity(i);
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        2);
+            }
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         setHasOptionsMenu(true);
+
+//        String data = getArguments().getString("message");
+//        uriImage = Uri.parse(data);
+
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            CheckStoragePermission();
+        }
 
         File file = new File(Environment.getExternalStoragePublicDirectory("").getAbsolutePath() + "/MultiImageConverter");
         if (!file.exists()) {
@@ -257,6 +236,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
             }
         });
         recyclerView = view.findViewById(R.id.rv);
+
 
 
         items = new ArrayList<File>();
@@ -308,8 +288,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         maddCameraFAB.setOnClickListener(v -> StartMergeActivity("CameraActivity"));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setHasFixedSize(true);
-
         CreateDataSource();
         InitBottomSheetProgress();
         return view;
@@ -339,7 +317,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.sort_menu, menu);
-        mainMenuItem = menu.findItem(R.id.fileSort);
+//        mainMenuItem = menu.findItem(R.id.fileSort);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -352,19 +330,19 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.nameSort:
-                mainMenuItem.setTitle("Name");
+//                mainMenuItem.setTitle("Name");
                 comparator = FileComparator.getNameComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
                 return true;
             case R.id.modifiedSort:
-                mainMenuItem.setTitle("Modified");
+//                mainMenuItem.setTitle("Modified");
                 comparator = FileComparator.getLastModifiedComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
                 return true;
             case R.id.sizeSort:
-                mainMenuItem.setTitle("Size");
+//                mainMenuItem.setTitle("Size");
                 comparator = FileComparator.getSizeComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
@@ -528,12 +506,12 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                 }
             }
 
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onItemLongClick(View view, File obj, int pos) {
-                enableActionMode(pos);
-                Toast.makeText(getActivity(), "item clicked :" + pos, Toast.LENGTH_SHORT).show();
-            }
+//            @RequiresApi(api = Build.VERSION_CODES.M)
+//            @Override
+//            public void onItemLongClick(View view, File obj, int pos) {
+//                enableActionMode(pos);
+//                Toast.makeText(getActivity(), "item clicked :" + pos, Toast.LENGTH_SHORT).show();
+//            }
 
 
         });
@@ -626,15 +604,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         return false;
     }
 
-    @Override
-    public void onItemClick(View view, File value, int position) {
-
-    }
-
-    @Override
-    public void onItemLongClick(View view, File obj, int pos) {
-
-    }
 
     public void setPackageManager(PackageManager packageManager) {
         this.setPackageManager(packageManager);/* = packageManager;*/
@@ -686,6 +655,10 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     private void showBottomSheetDialog(final File currentFile) {
         final View view = getLayoutInflater().inflate(R.layout.sheet_list, null);
 
+        if(currentFile.getName().contains(".jpg")){
+            view.findViewById(R.id.lyt_rename).setVisibility(View.GONE);
+        }
+
         ((View) view.findViewById(R.id.lyt_email)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -719,7 +692,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
             public void onClick(View view) {
                 mBottomSheetDialog.dismiss();
                 showCustomRenameDialog(currentFile);
-
             }
         });
 
@@ -738,11 +710,19 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
             @Override
             public void onClick(View view) {
                 mBottomSheetDialog.dismiss();
-                Intent intent = new Intent(getActivity(), DisplayActivity.class);
-                Uri uriToSend = Uri.fromFile(currentFile.getAbsoluteFile());
-
-                intent.putExtra("file_path", "" + uriToSend);
-                startActivity(intent);
+                String name = currentFile.getName();
+                if (name.contains(".pdf")) {
+                    Intent intent = new Intent(getActivity(), DisplayActivity.class);
+                    Uri uriToSend = Uri.fromFile(currentFile.getAbsoluteFile());
+                    intent.putExtra("file_name", currentFile.getName());
+                    intent.putExtra("file_path", "" + uriToSend);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.parse(currentFile.getPath()), "image/*");
+                    startActivity(intent);
+                }
             }
         });
         mBottomSheetDialog = new BottomSheetDialog(getActivity());
@@ -764,23 +744,60 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         View view = inflater.inflate(R.layout.rename_layout, null);
         builder.setView(view);
         final EditText editText = (EditText) view.findViewById(R.id.renameEditText2);
-        editText.setText(currentFile.getName());
-        builder.setTitle("Rename");
-        builder.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                File root = (File) getActivity().getFilesDir();
-                File file = new File(root + "/MultiImageConverter", editText.getText().toString());
-                currentFile.renameTo(file);
-                dialog.dismiss();
-                CreateDataSource();
-                mAdapter.notifyItemInserted(pdfArrayList.size() - 1);
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
+        String name = currentFile.getName();
+        String[] names;
+        if (name.contains(".pdf")) {
+            names = name.split(".pdf");
+            String splitName = names[0];
+            editText.setText(splitName);
+            builder.setTitle("Rename");
+            builder.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    File dir = Environment.getExternalStorageDirectory();
+                    if (dir.exists()) {
+                        String root = currentFile.getName();
 
-            }
-        });
+                        File from = new File(dir + "/MultiImageConverter", root);
+                        File to = new File(dir + "/MultiImageConverter", editText.getText().toString() + ".pdf");
+                        if (from.exists())
+                            from.renameTo(to);
+                        from.delete();
+                        pdfArrayList.clear();
+                        displaypdf();
+                    }
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+
+                }
+            });
+//        } else {
+//            names = name.split(".jpg");
+//            String splitName = names[0];
+//            editText.setText(splitName);
+//            builder.setTitle("Rename");
+//            builder.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface dialog, int id) {
+//                    File dir = Environment.getExternalStorageDirectory();
+//                    if (dir.exists()) {
+//                        String root = currentFile.getName();
+//
+//                        File from = new File(dir + "/MultiImageConverter", root);
+//                        File to = new File(dir + "/MultiImageConverter", editText.getText().toString() + ".jpg");
+//                        if (from.exists())
+//                            from.renameTo(to);
+//                        pdfArrayList.clear();
+//                        displaypdf();
+//                    }
+//                }
+//            });
+//            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface dialog, int id) {
+//
+//                }
+//            });
+        }
 
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -792,9 +809,9 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 currentFile.delete();
-                CreateDataSource();
-                mAdapter.notifyItemInserted(pdfArrayList.size() - 1);
-
+                pdfArrayList.clear();
+                mAdapter.notifyDataSetChanged();
+                displaypdf();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -915,8 +932,9 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                 if (singleFile.getName().endsWith(".pdf")) {
                     arrayList.add(singleFile);
                 }
-
-
+                if (singleFile.getName().endsWith(".jpg")) {
+                    arrayList.add(singleFile);
+                }
             }
         }
 
@@ -931,7 +949,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
             file.mkdirs();
         }
         try {
-
             pdfArrayList.addAll(findPdf(file));
             mAdapter = new MainAdapter(getActivity(), pdfArrayList, mOnItemClickListener);
             recyclerView.setAdapter(mAdapter);
@@ -941,4 +958,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
         }
     }
+
+
 }

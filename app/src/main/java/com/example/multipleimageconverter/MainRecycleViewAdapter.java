@@ -43,10 +43,6 @@ public class MainRecycleViewAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         void onBackPressed();
 
         boolean onCreateOptionsMenu(Menu menu);
-
-        void onItemClick(View view, File value, int position);
-
-        void onItemLongClick(View view, File obj, int pos);
     }
 
     public void setOnItemClickListener(OnItemClickListener mItemClickListener) {
@@ -104,21 +100,10 @@ public class MainRecycleViewAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             view.brief.setText(strDate);
             view.size.setText(GetSize(obj.length()));
 
-            view.lyt_parent.setOnClickListener(v -> {
-                if (mOnItemClickListener == null) return;
-                mOnItemClickListener.onItemClick(v, obj, position);
-            });
-
-            view.lyt_parent.setOnLongClickListener(v -> {
-                if (mOnItemClickListener == null) return false;
-                mOnItemClickListener.onItemLongClick(v, obj, position);
-                return true;
-            });
             toggleCheckedIcon(holder, position);
 
             Glide.with(ctx)
-                    .load(pdfArraylist.get(position))
-                    .placeholder(R.drawable.document)
+                    .load(R.drawable.pdffinal)
                     .centerCrop()
                     .transition(DrawableTransitionOptions.withCrossFade(500))
                     .into(view.image);

@@ -2,10 +2,12 @@ package com.example.multipleimageconverter;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,6 +26,7 @@ public class DisplayActivity extends AppCompatActivity implements OnPageChangeLi
     String pdfFileName;
     String filePathPdf;
     String filePathJpg;
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,14 +37,16 @@ public class DisplayActivity extends AppCompatActivity implements OnPageChangeLi
         if (Extras != null) {
             filePathPdf = Extras.getString("file_path");
             filePathJpg = Extras.getString("file_path");
+            pdfFileName = Extras.getString("file_name");
+
         }
-
-
         Log.i(TAG, "onCreate: Extra we got is : " + filePathJpg);
 
-        pdfView= (PDFView)findViewById(R.id.pdfView);
+        pdfView = (PDFView) findViewById(R.id.pdfView);
         pdfView = (PDFView) findViewById(R.id.pdfView);
         displayfromUri(Uri.parse(filePathPdf));
+        textView = findViewById(R.id.tv_header);
+        textView.setText(pdfFileName);
     }
 
     private void displayfromUri(Uri filePathJpg) {
@@ -55,7 +60,6 @@ public class DisplayActivity extends AppCompatActivity implements OnPageChangeLi
                 .scrollHandle(new DefaultScrollHandle(this))
                 .load();
     }
-
 
     @Override
     public void onPageChanged(int page, int pageCount) {
@@ -81,4 +85,11 @@ public class DisplayActivity extends AppCompatActivity implements OnPageChangeLi
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
 }

@@ -16,7 +16,8 @@ public class MainViewHolder extends RecyclerView.ViewHolder {
     public ImageView pdf_imageView;
     public LinearLayout lyt_parentdocument;
     TextView brief;
-
+    TextView pageCount;
+    ImageView docImage;
 
     public MainViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -27,6 +28,8 @@ public class MainViewHolder extends RecyclerView.ViewHolder {
         brief = itemView.findViewById(R.id.dateItemTimeTextView);
         lyt_parentdocument = (itemView).findViewById(R.id.listItemLinearLayoutdocument);
 
+        pageCount = itemView.findViewById(R.id.page_count);
+        docImage = itemView.findViewById(R.id.doc);
     }
 }
 

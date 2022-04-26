@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +41,7 @@ public class CroppedActivity extends AppCompatActivity {
     private Button done;
     private int processedImage = 0;
     private final Context context = this;
-    CircleImageView nextButton, imageReverse;
+    ImageView nextButton, imageReverse;
     TextView currentStateCount;
     private ArrayList<Uri> selectedUriList = new ArrayList<>();
     private ArrayList<Uri> croppedUriList = new ArrayList<>();
@@ -106,10 +107,12 @@ public class CroppedActivity extends AppCompatActivity {
                 cropperView.setRotationY(0);
             }
         });
+        nextButton = findViewById(R.id.imageview);
+
         currentStateCount = findViewById(R.id.currentStateCount);
         Log.i("procee", "process image we got is :" + processedImage);
         Button imageReset = findViewById(R.id.imageReset);
-        Button imageDelete = findViewById(R.id.imageDelete);
+//        Button imageDelete = findViewById(R.id.imageDelete);
         Button imageRotate = findViewById(R.id.imageRotate);
         imageRotate.setOnClickListener(view -> {
             cropperView.rotateImage(90);
@@ -119,7 +122,6 @@ public class CroppedActivity extends AppCompatActivity {
         imageReverse = findViewById(R.id.imageReverse);
         imageReverse.setVisibility(View.GONE);
         cropperView = findViewById(R.id.cropperView);
-        nextButton = findViewById(R.id.imageview);
         Bundle extras = getIntent().getExtras();
         String message = extras.getString("message");
         cameraValueIntent = extras.getString("cameraValue");
@@ -203,17 +205,17 @@ public class CroppedActivity extends AppCompatActivity {
             }
         });
 
-        imageDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    selectedUriList.remove(processedImage);
-                } catch (Exception e) {
-
-                }
-
-            }
-        });
+//        imageDelete.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                try {
+//                    selectedUriList.remove(processedImage);
+//                } catch (Exception e) {
+//
+//                }
+//
+//            }
+//        });
         nextButton.setOnClickListener(view -> {
             imageCount.getAndIncrement();
             Log.i("clicked", "processimage we got is first : " + imageCount);

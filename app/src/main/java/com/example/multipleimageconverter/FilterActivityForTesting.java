@@ -5,16 +5,25 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.ContentValues.TAG;
 import static android.os.Environment.getExternalStorageDirectory;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +42,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -44,6 +55,7 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.mikhaellopez.circularprogressbar.BuildConfig;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 import com.zomato.photofilters.FilterPack;
 import com.zomato.photofilters.imageprocessors.Filter;
@@ -63,7 +75,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class FilterActivityForTesting extends AppCompatActivity implements ViewEventAdapter.ThumbnailsAdapterListener {
 
     Dialog MyDialog;
-    CircleImageView filterNext, imageReverseFilter;
+    ImageView filterNext, imageReverseFilter;
     TextView filterListSize;
     int filterCount = -1;
     private static final int READ_REQUEST_CODE = 42;
@@ -83,6 +95,7 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
     FilterActivityForTesting mainActivity;
     LinearLayoutManager mLinearLayoutManager;
     ArrayList<Uri> arrayListCropped;
+    Bitmap myLogo;
     ArrayList<Bitmap> filterImage = new ArrayList<>();
     ArrayList<Uri> finalBitmapList = new ArrayList<>();
 
@@ -94,10 +107,44 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         System.loadLibrary("NativeImageProcessor");
     }
 
+    private void CheckStoragePermission() {
+        if (ContextCompat.checkSelfPermission(FilterActivityForTesting.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(FilterActivityForTesting.this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                AlertDialog alertDialog = new AlertDialog.Builder(FilterActivityForTesting.this).create();
+                alertDialog.setTitle("Storage Permission");
+                alertDialog.setMessage("Storage permission is required in order to " +
+                        "provide Image to PDF feature, please enable permission in app settings");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Settings",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID));
+                                startActivity(i);
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(FilterActivityForTesting.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        2);
+            }
+        }
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.filter_activity_for_testing);
+
+        CheckStoragePermission();
+
+        if (ContextCompat.checkSelfPermission(FilterActivityForTesting.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            CheckStoragePermission();
+        }
+
         ll = findViewById(R.id.ll);
         recyclerView = findViewById(R.id.recycler_view);
         items = new ArrayList<>();
@@ -110,6 +157,8 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         imageReverseFilter = findViewById(R.id.imageReverseFilter);
         filterListSize = findViewById(R.id.filterListSize);
 
+//        currentImage = recyclerView.findViewById(R.id.img);
+
         Bundle bundle = getIntent().getExtras();
         filterNext = findViewById(R.id.filternext);
         imageView = findViewById(R.id.image_preview);
@@ -121,25 +170,25 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
             imageReverseFilter.setVisibility(View.GONE);
 
         }
+
+        myLogo = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.photo);
+
         Glide.with(getApplicationContext())
                 .load(arrayListCropped.get(currentCountFilter))
                 .into(imageView);
-        prepare(Utils.uriToBitmap(getApplicationContext(), arrayListCropped.get(currentCountFilter)));
+        prepare(myLogo);
         int maxcountiflter = arrayListCropped.size();
 
         if (currentCountFilter < maxcountiflter) {
             if (filterCount > currentCountFilter)
                 filterCount = currentCountFilter;
-            Log.i("currentcount", "current count Filter is :" + currentCountFilter);
-            Log.i("currentcount", "maxcountiflter Filter is :" + maxcountiflter);
-            Log.i("currentcount", "filterCount Filter is :" + filterCount);
             filterCount++;
             filterImage.add(FilterImage);
             imageReverseFilter.setVisibility(View.GONE);
             Glide.with(getApplicationContext())
                     .load(arrayListCropped.get(currentCountFilter))
                     .into(imageView);
-            prepare(Utils.uriToBitmap(getApplicationContext(), arrayListCropped.get(currentCountFilter)));
+            prepare(myLogo);
             currentCountFilter++;
             if (arrayListCropped.size() == currentCountFilter) {
                 filterNext.setVisibility(View.GONE);
@@ -152,6 +201,7 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         filterNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Glide.with(getApplicationContext())
                         .load(selectedFilters.get(++selectedImageIndex).processFilter(selectedFiltersBitmap.get(selectedImageIndex)))
                         .into(imageView);
@@ -161,6 +211,7 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
                 if (selectedImageIndex + 1 >= arrayListCropped.size()) {
                     filterNext.setVisibility(View.GONE);
                 }
+//                changeImage(Utils.uriToBitmap(getApplicationContext(), arrayListCropped.get(selectedImageIndex)), selectedFiltersBitmap.get(selectedImageIndex).toString());
 
                 imageReverseFilter.setVisibility(View.VISIBLE);
 
@@ -170,13 +221,14 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         imageReverseFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                imageView.setImageURI(arrayListCropped.get(currentCountFilter - 1));
+
 
                 Glide.with(getApplicationContext())
                         .load(selectedFilters.get(--selectedImageIndex).processFilter(selectedFiltersBitmap.get(selectedImageIndex)))
                         .into(imageView);
 
                 filterListSize.setText(selectedImageIndex + 1 + "/" + String.valueOf(arrayListCropped.size()));
+//                changeImage(Utils.uriToBitmap(getApplicationContext(), arrayListCropped.get(selectedImageIndex)), selectedFiltersBitmap.get(selectedImageIndex).toString());
 
                 if (selectedImageIndex <= 0) {
                     imageReverseFilter.setVisibility(View.GONE);
@@ -198,67 +250,52 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
     }
 
     public void saveImageToGallery() {
-        Toast.makeText(this, "List size: " + finalBitmapList.size(), Toast.LENGTH_SHORT).show();
-
+        mainActivity = this;
+        getImageUri(mainActivity, selectedFiltersBitmap);
         Dexter.withActivity(this).withPermissions(READ_EXTERNAL_STORAGE,
                 WRITE_EXTERNAL_STORAGE)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        File file = null;
                         if (report.areAllPermissionsGranted()) {
+                            Bitmap myBitmap = null;
 
                             for (Uri uri : finalBitmapList) {
-
-                                Bitmap myBitmap = Utils.uriToBitmap(FilterActivityForTesting.this, uri);
-
-                                ImageDocument document = new ImageDocument(uri, FilterActivityForTesting.this);
-                                addToDataStore(document);
-
-                                String path = BitmapUtils.insertImage(getContentResolver(), myBitmap,
-                                        getExternalStorageDirectory().getAbsolutePath() + "/MultiImageConverter" + FilterImage, null);
-
-                                String root = getExternalStorageDirectory().getPath();
-                                File myDir = new File(root + "/MultiImageConverter");
-
+                                myBitmap = Utils.uriToBitmap(FilterActivityForTesting.this, uri);
+                                String root = Environment.getExternalStorageDirectory().toString()+ "/MultiImageConverter";
+                                File myDir = new File(root);
                                 myDir.mkdirs();
                                 Random generator = new Random();
                                 int n = 10000;
                                 n = generator.nextInt(n);
                                 String fname = "Image-" + n + ".jpg";
-
-                                File file = new File(myDir, fname);
-                                Log.i(TAG, "" + file);
-
-                                if (file.exists())
-                                    file.delete();
-
+                                file = new File(myDir, fname);
+                                System.out.println(file.getAbsolutePath());
+                                if (file.exists()) file.delete();
+                                Log.i("LOAD", root + fname);
                                 try {
                                     FileOutputStream out = new FileOutputStream(file);
+                                    myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
                                     out.flush();
                                     out.close();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
 
-                                if (!TextUtils.isEmpty(path)) {
-
-                                    Snackbar snackbar = Snackbar
-                                            .make(ll, "Image saved to gallery!", Snackbar.LENGTH_LONG)
-                                            .setAction("OPEN", new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View view) {
-                                                    openImage(Uri.parse(path));
-                                                }
-                                            });
-
-                                    snackbar.show();
-                                } else {
-                                    Snackbar snackbar = Snackbar
-                                            .make(ll, "Unable to save image!", Snackbar.LENGTH_LONG);
-
-                                    snackbar.show();
-                                }
+                                MediaScannerConnection.scanFile(getApplicationContext(), new String[]{file.getPath()}, new String[]{"image/jpeg"}, null);
                             }
+                            if (file.exists()) {
+                                Toast.makeText(getApplicationContext(), "Image saved to gallery!", Toast.LENGTH_LONG).show();
+//                                openImage(Uri.parse(path));
+
+                                Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
+                                startActivity(intent);
+                                finalBitmapList.clear();
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Unable to save image!", Toast.LENGTH_LONG).show();
+                            }
+
                         }
                     }
 
@@ -274,7 +311,7 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
     public ArrayList<Uri> getImageUri(Context inContext, ArrayList<Bitmap> inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         String path;
-        for(int i=0; i<inImage.size(); i++) {
+        for (int i = 0; i < inImage.size(); i++) {
             inImage.get(i).compress(Bitmap.CompressFormat.JPEG, 100, bytes);
             path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage.get(i), "Image", null);
             finalBitmapList.add(Uri.parse(path));
@@ -286,11 +323,9 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
     public void prepare(Bitmap bitmap) {
         Bitmap thumbImage;
         if (bitmap != null)
-            thumbImage = bitmap;
+            thumbImage = myLogo;
         else
             thumbImage = BitmapUtils.GetFromAssetFolder(FilterActivityForTesting.this, IMAGE_NAME);
-
-
         ThumbnailsManager.clearThumbs();
         items.clear();
 
@@ -300,6 +335,11 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         ThumbnailsManager.addThumb(thumbnailItem);
 
         List<Filter> filters = FilterPack.getFilterPack(this);
+
+//        ArrayList<Filter> revArrayList = new ArrayList<Filter>();
+//        for (int i = filters.size() - 1; i >= 0; i--) {
+//            revArrayList.add(filters.get(i));
+//        }
 
         for (Filter filter : filters) {
             ThumbnailItem tI = new ThumbnailItem();
@@ -323,7 +363,6 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
 
         mAdapter.notifyDataSetChanged();
     }
-
 
     private void addToDataStore(ImageDocument item) {
         documents.add(item);
@@ -404,7 +443,7 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
             ArrayAdapter<String> pagearrary = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, sizes);
             pagearrary.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
             pageSize.setAdapter(pagearrary);
-            pageSize.setSelection(0);
+            pageSize.setSelection(1);
 
             final AppCompatSpinner pageMargin = alertView.findViewById(R.id.margin);
             String[] margins = new String[]{"No margin", "Small", "Big"};
@@ -418,7 +457,7 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
             ArrayAdapter<String> compressionArray = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, compressions);
             compressionArray.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
             compression.setAdapter(compressionArray);
-            compression.setSelection(2);
+            compression.setSelection(0);
 
             final EditText edittext = alertView.findViewById(R.id.editText2);
             dialog.setContentView(alertView);
@@ -443,8 +482,18 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
                     converter.setCompression(compression.getSelectedItem().toString());
                     converter.execute();
                     dialog.dismiss();
-                    Intent intent = new Intent(this, MainActivity.class);
+
+//                    Bundle bundle = new Bundle();
+//                    String myMessage = String.valueOf(finalBitmapList.get(0));
+//                    bundle.putSerializable("message", myMessage );
+//                    HomeFragment fragInfo = new HomeFragment();
+//                    fragInfo.setArguments(bundle);
+
+                    Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
+                    intent.putExtra("first_page", finalBitmapList.get(0));
+                    finalBitmapList.clear();
                     startActivity(intent);
+                    mAdapter.notifyItemInserted(0);
                     mAdapter.notifyDataSetChanged();
                 } else {
                     Snackbar.make(v, "File name should not be empty", Snackbar.LENGTH_LONG).show();
@@ -467,6 +516,7 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
                         ImageDocument document = new ImageDocument(imageUri, this);
                         addToDataStore(document);
                     }
+                } else if (result.getData() != null) {
                 } else if (result.getData() != null) {
                     Uri imageUri = result.getData();
                     ImageDocument document = new ImageDocument(imageUri, this);

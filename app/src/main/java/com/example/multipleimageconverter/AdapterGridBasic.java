@@ -103,14 +103,14 @@ public class AdapterGridBasic extends RecyclerView.Adapter<RecyclerView.ViewHold
                     }
                 }
             });
-            view.lyt_parent.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (mOnItemClickListener == null) return false;
-                    mOnItemClickListener.onItemLongClick(v, items.get(position), holder.getAdapterPosition());
-                    return true;
-                }
-            });
+//            view.lyt_parent.setOnLongClickListener(new View.OnLongClickListener() {
+//                @Override
+//                public boolean onLongClick(View v) {
+//                    if (mOnItemClickListener == null) return false;
+//                    mOnItemClickListener.onItemLongClick(v, items.get(position), holder.getAdapterPosition());
+//                    return true;
+//                }
+//            });
             toggleCheckedIcon(view, position);
         }
     }

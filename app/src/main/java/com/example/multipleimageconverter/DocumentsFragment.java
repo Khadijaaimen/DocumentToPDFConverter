@@ -2,16 +2,17 @@ package com.example.multipleimageconverter;
 
 import static android.app.Activity.RESULT_OK;
 
+import static com.example.multipleimageconverter.R.drawable.ic_baseline_keyboard_arrow_down_24;
+import static com.example.multipleimageconverter.R.drawable.ic_baseline_keyboard_arrow_up_24;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,28 +21,27 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -55,15 +55,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class FavoritesFragment extends Fragment implements MainRecycleViewAdapter.OnItemClickListener {
+public class DocumentsFragment extends Fragment implements MainRecycleViewAdapter.OnItemClickListener {
     private static final int Merge_Request_CODE = 42;
     private RecyclerView recyclerView2;
     List<File> pdfArrayList;
     List<File> items = null;
     ProgressBar progressBar;
+    LinearLayout linearLayoutPlease;
     public static int REQUEST_PERMISSIONS = 1;
     boolean boolean_permission;
     File dir;
@@ -79,50 +81,29 @@ public class FavoritesFragment extends Fragment implements MainRecycleViewAdapte
     TextView progressBarPercentage;
     EditText searchView;
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if(!Permissions.isPermissionGranted(getActivity())){
-            new AlertDialog.Builder(getActivity())
-                    .setTitle("All files Permission")
-                    .setMessage(R.string.message)
-                    .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            takePermission();
-                        }
-                    })
-                    .setNegativeButton("Deny", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    })
-                    .setIcon(R.drawable.pdffinal)
-                    .show();
-
-        }
-    }
-
-    private void takePermission() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            try {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                intent.addCategory("android.intent.category.DEFAULT");
-                Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
-                intent.setData(uri);
-                startActivityForResult(intent, 101);
-            } catch (Exception e){
-                e.printStackTrace();
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                startActivityForResult(intent, 101);
+    private void CheckStoragePermission() {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                alertDialog.setTitle("Storage Permission");
+                alertDialog.setMessage("Storage permission is required in order to " +
+                        "provide Image to PDF feature, please enable permission in app settings");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Settings",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID));
+                                startActivity(i);
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        2);
             }
-        } else{
-            ActivityCompat.requestPermissions(getActivity(), new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
-            }, 101);
         }
     }
 
@@ -130,6 +111,15 @@ public class FavoritesFragment extends Fragment implements MainRecycleViewAdapte
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorites, container, false);
+
+//        CheckStoragePermission();
+
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            CheckStoragePermission();
+        }
+
+        linearLayoutPlease= view.findViewById(R.id.layoutPlease);
+        linearLayoutPlease.setVisibility(View.VISIBLE);
 
         searchView = view.findViewById(R.id.search_bar2);
         pdfArrayList = new ArrayList<>();
@@ -300,10 +290,10 @@ public class FavoritesFragment extends Fragment implements MainRecycleViewAdapte
                 }
             }
 
-            @Override
-            public void onItemLongClick(View view, File obj, int pos) {
-                enableActionMode(pos);
-            }
+//            @Override
+//            public void onItemLongClick(View view, File obj, int pos) {
+//                enableActionMode(pos);
+//            }
 
         });
 
@@ -320,6 +310,62 @@ public class FavoritesFragment extends Fragment implements MainRecycleViewAdapte
         }
 
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.sort_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private boolean isChecked = false;
+    Comparator<File> comparator = null;
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.nameSort:
+                comparator = FileComparator.getNameComparator();
+                FileComparator.isDescending = isChecked;
+                sortFiles(comparator);
+                return true;
+            case R.id.modifiedSort:
+//                mainMenuItem.setTitle("Modified");
+                comparator = FileComparator.getLastModifiedComparator();
+                FileComparator.isDescending = isChecked;
+                sortFiles(comparator);
+                return true;
+            case R.id.sizeSort:
+//                mainMenuItem.setTitle("Size");
+                comparator = FileComparator.getSizeComparator();
+                FileComparator.isDescending = isChecked;
+                sortFiles(comparator);
+                return true;
+            case R.id.ordering:
+                isChecked = !isChecked;
+                if (isChecked) {
+                    item.setIcon(ic_baseline_keyboard_arrow_up_24);
+                } else {
+                    item.setIcon(ic_baseline_keyboard_arrow_down_24);
+                }
+                if (comparator != null) {
+                    FileComparator.isDescending = isChecked;
+                    sortFiles(comparator);
+                } else {
+                    comparator = FileComparator.getLastModifiedComparator();
+                    FileComparator.isDescending = isChecked;
+                    sortFiles(comparator);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void sortFiles(Comparator<File> comparator) {
+        Collections.sort(mAdapter.pdfArrayList, comparator);
+        mAdapter.notifyDataSetChanged();
     }
 
     private void enableActionMode(int position) {
@@ -395,15 +441,6 @@ public class FavoritesFragment extends Fragment implements MainRecycleViewAdapte
             actionMode.setTitle(String.valueOf(count));
             actionMode.invalidate();
         }
-    }
-    @Override
-    public void onItemClick(View view, File value, int position) {
-
-    }
-
-    @Override
-    public void onItemLongClick(View view, File obj, int pos) {
-
     }
 
     public void showCustomDeleteAllDialog(final ActionMode mode) {
@@ -678,6 +715,8 @@ public class FavoritesFragment extends Fragment implements MainRecycleViewAdapte
                 }
             }
         }
+
+        linearLayoutPlease.setVisibility(View.GONE);
         return (ArrayList<File>) pdfArrayList;
     }
 
@@ -723,4 +762,3 @@ public class FavoritesFragment extends Fragment implements MainRecycleViewAdapte
     }
 
 }
-

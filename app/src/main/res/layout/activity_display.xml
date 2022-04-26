@@ -2,6 +2,7 @@
 <RelativeLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
+    android:padding="@dimen/_10sdp"
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <TextView
@@ -18,13 +19,7 @@
         android:id="@+id/pdfView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/tv_header" />
-
-<!--    <ImageView-->
-<!--        android:id="@+id/imgView"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_below="@+id/tv_header" />-->
-
+        android:layout_below="@+id/tv_header"
+        android:layout_marginTop="@dimen/_10sdp" />
 
 </RelativeLayout>

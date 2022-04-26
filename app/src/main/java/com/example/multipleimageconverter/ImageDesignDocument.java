@@ -2,7 +2,6 @@ package com.example.multipleimageconverter;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
@@ -18,12 +17,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -33,7 +32,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,10 +70,43 @@ public class ImageDesignDocument extends AppCompatActivity implements MainRecycl
     private TextView progressBarPercentage;
     EditText searchView;
 
+
+    private void CheckStoragePermission() {
+        if (ContextCompat.checkSelfPermission(ImageDesignDocument.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(ImageDesignDocument.this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                AlertDialog alertDialog = new AlertDialog.Builder(ImageDesignDocument.this).create();
+                alertDialog.setTitle("Storage Permission");
+                alertDialog.setMessage("Storage permission is required in order to " +
+                        "provide Image to PDF feature, please enable permission in app settings");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Settings",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID));
+                                startActivity(i);
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(ImageDesignDocument.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        2);
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_documents);
+
+        CheckStoragePermission();
+
+        if (ContextCompat.checkSelfPermission(ImageDesignDocument.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            CheckStoragePermission();
+        }
 
         searchView = findViewById(R.id.search_bar2);
         pdfArrayList = new ArrayList<>();
@@ -119,7 +150,7 @@ public class ImageDesignDocument extends AppCompatActivity implements MainRecycl
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.sort_menu, menu);
-        mainMenuItem = menu.findItem(R.id.fileSort);
+//        mainMenuItem = menu.findItem(R.id.fileSort);
         return true;
     }
 
@@ -132,19 +163,19 @@ public class ImageDesignDocument extends AppCompatActivity implements MainRecycl
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.nameSort:
-                mainMenuItem.setTitle("Name");
+//                mainMenuItem.setTitle("Name");
                 comparator = FileComparator.getNameComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
                 return true;
             case R.id.modifiedSort:
-                mainMenuItem.setTitle("Modified");
+//                mainMenuItem.setTitle("Modified");
                 comparator = FileComparator.getLastModifiedComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
                 return true;
             case R.id.sizeSort:
-                mainMenuItem.setTitle("Size");
+//                mainMenuItem.setTitle("Size");
                 comparator = FileComparator.getSizeComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
@@ -290,10 +321,10 @@ public class ImageDesignDocument extends AppCompatActivity implements MainRecycl
                 }
             }
 
-            @Override
-            public void onItemLongClick(View view, File obj, int pos) {
-                enableActionMode(pos);
-            }
+//            @Override
+//            public void onItemLongClick(View view, File obj, int pos) {
+//                enableActionMode(pos);
+//            }
 
         });
 
@@ -343,16 +374,6 @@ public class ImageDesignDocument extends AppCompatActivity implements MainRecycl
             actionMode.setTitle(String.valueOf(count));
             actionMode.invalidate();
         }
-    }
-
-    @Override
-    public void onItemClick(View view, File value, int position) {
-
-    }
-
-    @Override
-    public void onItemLongClick(View view, File obj, int pos) {
-
     }
 
     private class ActionModeCallback implements ActionMode.Callback {

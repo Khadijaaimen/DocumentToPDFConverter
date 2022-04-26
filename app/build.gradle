@@ -73,6 +73,8 @@ dependencies {
 
     implementation 'com.budiyev.android:code-scanner:2.1.0'
 
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.17'
+
     implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
 
     implementation 'com.github.markomilos:paginate:1.0.0'

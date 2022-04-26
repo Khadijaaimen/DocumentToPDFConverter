@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:hint="File Name"
-        android:inputType="textPersonName"
+        android:inputType="textPersonName|textCapWords"
         android:maxLines="1"
         android:singleLine="true" />
 

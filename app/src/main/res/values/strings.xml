@@ -35,4 +35,7 @@
     <string name="skype">Skype</string>
     <string name="other">Other</string>
     <string name="message">To see all your documents in app. Please enable the <b>Access to all files</b> permission.</string>
+    <string name="search">Search</string>
+    <string name="please_wait_while_files_are_being_loaded">Please wait while files are being loaded...</string>
+    <string name="sort_by">Sort By</string>
 </resources>

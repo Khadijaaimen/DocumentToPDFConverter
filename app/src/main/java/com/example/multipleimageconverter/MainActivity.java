@@ -1,50 +1,21 @@
 package com.example.multipleimageconverter;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.provider.Settings;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.mikhaellopez.circularprogressbar.CircularProgressBar;
-import com.zomato.photofilters.utils.ThumbnailItem;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainRecycleViewAdapter.OnItemClickListener {
     MainActivity.ActionModeCallback actionModeCallback;
@@ -82,9 +53,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case R.id.nav_favorites:
                             progressDialogDment();
                             break;
-                        case R.id.nav_search:
-                            selectedFragment = new com.example.multipleimageconverter.SearchFragment();
-                            break;
+//                        case R.id.nav_search:
+//                            selectedFragment = new com.example.multipleimageconverter.SearchFragment();
+//                            break;
                     }
 
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -99,31 +70,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressDialog = new ProgressDialog(MainActivity.this);
         progressDialog.show();
         progressDialog.setContentView(R.layout.progress_dialog);
-        progressDialog.getWindow().setBackgroundDrawableResource(R.color.black);
-
-        new Timer().schedule(new TimerTask() {
-            @Override
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             public void run() {
-
                 progressDialog.dismiss();
-
             }
-        }, 10000);
+        }, 500);
 
-        selectedFragment = new FavoritesFragment();
-
-
-    }
-
-    @Override
-    public void onItemClick(View view, File value, int position) {
-
-    }
-
-    @Override
-    public void onItemLongClick(View view, File obj, int pos) {
-        enableActionMode(pos);
-        Toast.makeText(this, "item clicked :" + pos, Toast.LENGTH_SHORT).show();
+        selectedFragment = new DocumentsFragment();
     }
 
     private void enableActionMode(int position) {
@@ -196,8 +151,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finishAffinity();
+        new AlertDialog.Builder(this)
+                .setTitle("Exit App")
+                .setCancelable(true)
+                .setMessage("Are you sure you want to exit?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MainActivity.this.finish();
+                        finishAffinity();
+                    }
+
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 }
 

@@ -3,12 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@null"
+    android:backgroundTint="@null"
     android:gravity="center">
 
-     <LinearLayout
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_round"
+        android:background="@null"
+        android:backgroundTint="@null"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="@dimen/_20sdp">
@@ -22,9 +24,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:text="Loading PDF(s)"
-            android:textSize="@dimen/_20sdp"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:textColor="@color/purple_500"
+            android:fontFamily="sans-serif-light"
+            android:text="Loading PDF Files"
+            android:textSize="@dimen/_14sdp"
             android:textStyle="bold" />
 
 

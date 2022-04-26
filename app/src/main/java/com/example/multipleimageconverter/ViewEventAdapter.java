@@ -41,6 +41,7 @@ public class ViewEventAdapter extends RecyclerView.Adapter<ViewEventAdapter.View
 
         final ThumbnailItem item1 = item.get(position);
         viewHolder.title.setText(item1.filterName);
+//        viewHolder.img.setImageResource(R.drawable.girl);
         viewHolder.img.setImageBitmap(item.get(position).image);
 
         viewHolder.img.setOnClickListener(view -> {
@@ -55,7 +56,7 @@ public class ViewEventAdapter extends RecyclerView.Adapter<ViewEventAdapter.View
     public int getItemCount() {
 //        return 7;
 
-        return (item).size() > 7 ? 7 :item.size();
+        return item.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

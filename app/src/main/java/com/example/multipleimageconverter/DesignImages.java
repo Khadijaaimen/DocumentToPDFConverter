@@ -3,21 +3,26 @@ package com.example.multipleimageconverter;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -32,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.mikhaellopez.circularprogressbar.BuildConfig;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import java.io.File;
@@ -46,7 +52,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class DesignImages extends AppCompatActivity implements MainRecycleViewAdapter.OnItemClickListener {
+public class
+DesignImages extends AppCompatActivity implements MainRecycleViewAdapter.OnItemClickListener {
     private static final int Merge_Request_CODE = 42;
     private RecyclerViewEmptySupport recyclerViewImage;
     List<File> pdfArrayList = new ArrayList<>();
@@ -72,6 +79,12 @@ public class DesignImages extends AppCompatActivity implements MainRecycleViewAd
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_design_images);
         searchBarImage = findViewById(R.id.search_barimage);
+
+        CheckStoragePermission();
+
+        if (ContextCompat.checkSelfPermission(DesignImages.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            CheckStoragePermission();
+        }
 
         homeFromImages.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,6 +128,31 @@ public class DesignImages extends AppCompatActivity implements MainRecycleViewAd
 
     }
 
+    private void CheckStoragePermission() {
+        if (ContextCompat.checkSelfPermission(DesignImages.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(DesignImages.this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                AlertDialog alertDialog = new AlertDialog.Builder(DesignImages.this).create();
+                alertDialog.setTitle("Storage Permission");
+                alertDialog.setMessage("Storage permission is required in order to " +
+                        "provide Image to PDF feature, please enable permission in app settings");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Settings",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID));
+                                startActivity(i);
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(DesignImages.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        2);
+            }
+        }
+    }
 
     @Override
     public void onBackPressed() {
@@ -127,7 +165,7 @@ public class DesignImages extends AppCompatActivity implements MainRecycleViewAd
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.sort_menu, menu);
-        mainMenuItem = menu.findItem(R.id.fileSort);
+//        mainMenuItem = menu.findItem(R.id.fileSort);
         return true;
     }
 
@@ -140,19 +178,19 @@ public class DesignImages extends AppCompatActivity implements MainRecycleViewAd
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.nameSort:
-                mainMenuItem.setTitle("Name");
+//                mainMenuItem.setTitle("Name");
                 comparator = FileComparator.getNameComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
                 return true;
             case R.id.modifiedSort:
-                mainMenuItem.setTitle("Modified");
+//                mainMenuItem.setTitle("Modified");
                 comparator = FileComparator.getLastModifiedComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
                 return true;
             case R.id.sizeSort:
-                mainMenuItem.setTitle("Size");
+//                mainMenuItem.setTitle("Size");
                 comparator = FileComparator.getSizeComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
@@ -296,10 +334,10 @@ public class DesignImages extends AppCompatActivity implements MainRecycleViewAd
                 }
             }
 
-            @Override
-            public void onItemLongClick(View view, File obj, int pos) {
-                enableActionMode(pos);
-            }
+//            @Override
+//            public void onItemLongClick(View view, File obj, int pos) {
+//                enableActionMode(pos);
+//            }
 
         });
 
@@ -346,16 +384,6 @@ public class DesignImages extends AppCompatActivity implements MainRecycleViewAd
             actionMode.setTitle(String.valueOf(count));
             actionMode.invalidate();
         }
-    }
-
-    @Override
-    public void onItemClick(View view, File value, int position) {
-
-    }
-
-    @Override
-    public void onItemLongClick(View view, File obj, int pos) {
-
     }
 
     private class ActionModeCallback implements ActionMode.Callback {

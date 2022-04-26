@@ -153,7 +153,6 @@ public class ImageToPDFAsync extends AsyncTask<Void, Integer, Boolean> {
 
     public void onPostExecute(Boolean bool) {
         filteractivity.runPostExecution(bool);
-        filteractivity.runPostExecution(bool);
     }
 
     public void onCancelled(Boolean bool) {
@@ -164,8 +163,6 @@ public class ImageToPDFAsync extends AsyncTask<Void, Integer, Boolean> {
 
     protected void onProgressUpdate(Integer... values) {
         filteractivity.setProgress(values[0], items.size());
-        filteractivity.setProgress(values[0],items.size());
-
     }
 
     public static boolean isJpeg(InputStream in) throws IOException {

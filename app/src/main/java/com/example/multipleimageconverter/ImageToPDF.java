@@ -2,15 +2,20 @@ package com.example.multipleimageconverter;
 
 import static com.theartofdev.edmodo.cropper.CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -31,6 +36,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -38,6 +45,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
+import com.mikhaellopez.circularprogressbar.BuildConfig;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 import com.theartofdev.edmodo.cropper.CropImage;
 
@@ -66,12 +74,37 @@ public class ImageToPDF extends AppCompatActivity {
     EditText passwordText;
     public ItemTouchHelper itemTouchHelper;
     ArrayList<String> croppedUriList = new ArrayList<>();
-    ActionModeCallback actionModeCallback;
     private ActionMode actionMode;
     LinearLayout mParentFloatButton;
     private String mCurrentCameraFile;
     private Dialog bottomSheetDialog;
     LinearLayout layout;
+
+    private void CheckStoragePermission() {
+        if (ContextCompat.checkSelfPermission(ImageToPDF.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(ImageToPDF.this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                AlertDialog alertDialog = new AlertDialog.Builder(ImageToPDF.this).create();
+                alertDialog.setTitle("Storage Permission");
+                alertDialog.setMessage("Storage permission is required in order to " +
+                        "provide Image to PDF feature, please enable permission in app settings");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Settings",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID));
+                                startActivity(i);
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(ImageToPDF.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        2);
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +112,12 @@ public class ImageToPDF extends AppCompatActivity {
         setContentView(R.layout.activity_image_to_pdf);
         ActionBar ab = getSupportActionBar();
         layout = findViewById(R.id.imagetoPdfGone);
+
+        CheckStoragePermission();
+
+        if (ContextCompat.checkSelfPermission(ImageToPDF.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            CheckStoragePermission();
+        }
 
         ab.setDisplayHomeAsUpEnabled(true);
         initComponent();
@@ -403,6 +442,11 @@ public class ImageToPDF extends AppCompatActivity {
             }
 
         }
+
+        if(requestCode== 0){
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
         if (requestCode == REQUEST_COLLAGE && resultCode == Activity.RESULT_OK) {
             makeResult();
         }
@@ -561,7 +605,7 @@ public class ImageToPDF extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.sort_menu, menu);
-        mainMenuItem = menu.findItem(R.id.fileSort);
+//        mainMenuItem = menu.findItem(R.id.fileSort);
         return true;
     }
 
@@ -572,19 +616,19 @@ public class ImageToPDF extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.nameSort:
-                mainMenuItem.setTitle("Name");
+//                mainMenuItem.setTitle("Name");
                 comparator = FileComparator.getNameFileComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
                 return true;
             case R.id.modifiedSort:
-                mainMenuItem.setTitle("Modified");
+//                mainMenuItem.setTitle("Modified");
                 comparator = FileComparator.getLastModifiedFileComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
                 return true;
             case R.id.sizeSort:
-                mainMenuItem.setTitle("Size");
+//                mainMenuItem.setTitle("Size");
                 comparator = FileComparator.getSizeFileComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);

@@ -11,9 +11,9 @@
         android:icon="@drawable/doc2"
         android:title="Documents" />
 
-    <item
-        android:id="@+id/nav_search"
-        android:icon="@drawable/image2"
-        android:title="Images" />
+<!--    <item-->
+<!--        android:id="@+id/nav_search"-->
+<!--        android:icon="@drawable/image2"-->
+<!--        android:title="Images" />-->
 
 </menu>
