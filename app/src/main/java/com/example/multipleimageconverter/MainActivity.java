@@ -171,6 +171,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 })
                 .show();
+        AppPreferences.setButtonCLicked(getApplication(), false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppPreferences.setButtonCLicked(getApplication(), false);
     }
 }
 

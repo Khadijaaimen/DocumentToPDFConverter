@@ -4,19 +4,16 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,16 +30,12 @@ import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CroppedActivity extends AppCompatActivity {
     private CropImageView cropperView;
@@ -164,7 +157,7 @@ public class CroppedActivity extends AppCompatActivity {
             textView7.setVisibility(View.VISIBLE);
         }
 
-        isButtonClicked = AppPrefrences.isButtonCLicked(getApplication());
+        isButtonClicked = AppPreferences.isButtonCLicked(getApplication());
 
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
@@ -233,7 +226,7 @@ public class CroppedActivity extends AppCompatActivity {
                             public void onAdClicked() {
                                 super.onAdClicked();
                                 isChecked = true;
-                                AppPrefrences.setButtonCLicked(getApplication(), true);
+                                AppPreferences.setButtonCLicked(getApplication(), true);
                                 if (cameraValueIntent != null) {
                                     Bitmap croppedBitmap = cropperView.getCroppedImage();
 
@@ -476,7 +469,7 @@ public class CroppedActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
+        AppPreferences.setButtonCLicked(getApplication(), false);
         Intent intent = new Intent(CroppedActivity.this, MainActivity.class);
         startActivity(intent);
     }

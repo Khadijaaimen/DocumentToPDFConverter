@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-class AppPrefrences {
+class AppPreferences {
 
     private static SharedPreferences mPrefs;
     private static SharedPreferences.Editor mPrefsEditor;
