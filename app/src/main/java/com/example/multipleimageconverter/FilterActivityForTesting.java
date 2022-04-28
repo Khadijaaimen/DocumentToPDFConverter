@@ -471,7 +471,7 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
             dialog.findViewById(R.id.bt_close).setOnClickListener(v -> dialog.dismiss());
             dialog.findViewById(R.id.bt_save).setOnClickListener(v -> {
 
-                String fileName = edittext.getText().toString();
+                String fileName = edittext.getText().toString().trim();
 
                 if (!fileName.equals("")) {
                     ImageToPDFAsync converter = new ImageToPDFAsync(mainActivity, documents, fileName, null);

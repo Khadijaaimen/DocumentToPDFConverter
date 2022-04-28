@@ -718,9 +718,12 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                     intent.putExtra("file_path", "" + uriToSend);
                     startActivity(intent);
                 } else {
-                    Intent intent = new Intent();
-                    intent.setAction(Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.parse(currentFile.getPath()), "image/*");
+                    File file=new File(Environment.getExternalStorageDirectory()+"/MultiImageConverter/"+name);
+                    Uri path= FileProvider.getUriForFile(getActivity(),"com.example.multipleimageconverter" + ".provider",file);
+
+                    Intent intent=new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(path,"image/*");
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                     startActivity(intent);
                 }
             }
