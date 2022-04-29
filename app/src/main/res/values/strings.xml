@@ -6,6 +6,7 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="adUnitID">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="manifestAdId">ca-app-pub-3940256099942544~3347511713</string>
 
     <string name="menu_home">My Documents</string>
     <string name="menu_gallery">Gallery</string>

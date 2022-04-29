@@ -136,8 +136,6 @@ public class CroppedActivity extends AppCompatActivity {
         }
         Log.i("camera", "string we got is :" + cameraValueIntent);
 
-//        Log.i("size","cropped list we got is :" + croppedUriList.size());
-
         if (message != null) {
             cropperView.setImageUriAsync(Uri.parse(message));
         }
@@ -482,5 +480,11 @@ public class CroppedActivity extends AppCompatActivity {
         protected ArrayList<Uri> doInBackground(Bitmap... bitmaps) {
             return selectedUriList;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppPreferences.setButtonCLicked(getApplication(), false);
     }
 }

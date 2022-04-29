@@ -36,12 +36,13 @@ public class QRcode extends AppCompatActivity {
     boolean CameraPermission = false;
     final int CAMERA_PERM = 1;
     Dialog MyDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrcode);
         CodeScannerView scannerView = findViewById(R.id.scanner_view);
-        mCodeScanner = new CodeScanner(this,scannerView);
+        mCodeScanner = new CodeScanner(this, scannerView);
         askPermission();
         if (CameraPermission) {
 
@@ -73,17 +74,17 @@ public class QRcode extends AppCompatActivity {
         }
     }
 
-    private void askPermission(){
+    private void askPermission() {
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP){
-
-
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ){
-
-                ActivityCompat.requestPermissions(QRcode.this,new String[]{Manifest.permission.CAMERA},CAMERA_PERM);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
 
 
-            }else {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(QRcode.this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERM);
+
+
+            } else {
 
                 mCodeScanner.startPreview();
                 CameraPermission = true;
@@ -97,16 +98,16 @@ public class QRcode extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
 
-        if (requestCode == CAMERA_PERM){
+        if (requestCode == CAMERA_PERM) {
 
 
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 mCodeScanner.startPreview();
                 CameraPermission = true;
-            }else {
+            } else {
 
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA)){
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
 
                     new AlertDialog.Builder(this)
                             .setTitle("Permission")
@@ -115,7 +116,7 @@ public class QRcode extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
-                                    ActivityCompat.requestPermissions(QRcode.this,new String[]{Manifest.permission.CAMERA},CAMERA_PERM);
+                                    ActivityCompat.requestPermissions(QRcode.this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERM);
 
                                 }
                             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -127,7 +128,7 @@ public class QRcode extends AppCompatActivity {
                         }
                     }).create().show();
 
-                }else {
+                } else {
 
                     new AlertDialog.Builder(this)
                             .setTitle("Permission")
@@ -138,7 +139,7 @@ public class QRcode extends AppCompatActivity {
 
                                     dialog.dismiss();
                                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                            Uri.fromParts("package",getPackageName(),null));
+                                            Uri.fromParts("package", getPackageName(), null));
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(intent);
                                     finish();
@@ -156,7 +157,6 @@ public class QRcode extends AppCompatActivity {
                     }).create().show();
 
 
-
                 }
 
             }
@@ -168,7 +168,7 @@ public class QRcode extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        if (CameraPermission){
+        if (CameraPermission) {
             mCodeScanner.releaseResources();
         }
 
@@ -183,7 +183,6 @@ public class QRcode extends AppCompatActivity {
         AppCompatButton _dialogQrShare = MyDialog.findViewById(R.id._dialogQrsave);
         AppCompatButton qrcopy = MyDialog.findViewById(R.id.qrcopy);
         AppCompatTextView _dialogIVQR = MyDialog.findViewById(R.id._dialogIVQR);
-
 
 
         _dialogQrShare.setEnabled(true);
@@ -219,6 +218,14 @@ public class QRcode extends AppCompatActivity {
             MyDialog.show();
     }
 
-
-
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(QRcode.this, MainActivity.class));
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppPreferences.setButtonCLicked(getApplication(), false);
+    }
+}

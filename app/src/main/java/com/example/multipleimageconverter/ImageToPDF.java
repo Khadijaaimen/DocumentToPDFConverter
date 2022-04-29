@@ -443,7 +443,7 @@ public class ImageToPDF extends AppCompatActivity {
 
         }
 
-        if(requestCode== 0){
+        if(resultCode == 0){
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }

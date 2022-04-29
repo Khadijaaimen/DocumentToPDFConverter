@@ -44,18 +44,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                    Fragment selectedFragment = null;
-
                     switch (item.getItemId()) {
                         case R.id.nav_home:
                             selectedFragment = new com.example.multipleimageconverter.HomeFragment();
                             break;
                         case R.id.nav_favorites:
-                            progressDialogDment();
+                            progressDialogDocument();
                             break;
-//                        case R.id.nav_search:
-//                            selectedFragment = new com.example.multipleimageconverter.SearchFragment();
-//                            break;
                     }
 
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -65,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             };
 
-    private void progressDialogDment() {
+    private void progressDialogDocument() {
 
         progressDialog = new ProgressDialog(MainActivity.this);
         progressDialog.show();
@@ -91,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void toggleSelection(int position) {
         mAdapter.toggleSelection(position);
-        // ItemTouchHelperClass.isItemSwipe = false;
         int count = mAdapter.getSelectedItemCount();
 
         if (count == 0) {
@@ -155,8 +149,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setTitle("Exit App")
                 .setCancelable(true)
                 .setMessage("Are you sure you want to exit?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
-                {
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         MainActivity.this.finish();

@@ -1,6 +1,7 @@
 package com.example.multipleimageconverter;
 
 import android.annotation.SuppressLint;
+import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -82,7 +83,8 @@ public class ImageToPDFAsync extends AsyncTask<Void, Integer, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... voids) {
-        File myDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/MultiImageConverter");
+        ContextWrapper cw = new ContextWrapper(filteractivity.getApplication());
+        File myDir = new File(cw.getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter");
         if (!myDir.exists()) {
             myDir.mkdirs();
         }

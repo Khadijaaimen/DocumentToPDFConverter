@@ -12,15 +12,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -54,6 +51,14 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationView;
 import com.mikhaellopez.circularprogressbar.BuildConfig;
@@ -89,6 +94,8 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     private BottomSheetDialog mBottomSheetDialog;
     private static final int RQS_OPEN_DOCUMENT_TREE = 24;
     private static final int REQUEST_CODE_CHOOSE = 97;
+    InterstitialAd mInterstitialAd;
+    Boolean isChecked = false, isButtonClicked;
     private File selectedFile;
     RelativeLayout images;
     Dialog ocrProgressDialog;
@@ -198,11 +205,20 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         setHasOptionsMenu(true);
 
-//        String data = getArguments().getString("message");
-//        uriImage = Uri.parse(data);
-
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             CheckStoragePermission();
+        }
+
+        isButtonClicked = AppPreferences.isButtonCLicked(getActivity());
+
+        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
+        if (!isButtonClicked) {
+            setAds();
         }
 
         File file = new File(Environment.getExternalStoragePublicDirectory("").getAbsolutePath() + "/MultiImageConverter");
@@ -231,13 +247,41 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         qr_ly.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), QRcode.class);
-                startActivity(intent);
+                if (!isButtonClicked) {
+                    if (mInterstitialAd != null) {
+                        mInterstitialAd.show(getActivity());
+
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent();
+                                Intent intent = new Intent(getActivity(), QRcode.class);
+                                startActivity(intent);
+                                mInterstitialAd = null;
+                                setAds();
+                            }
+
+                            @Override
+                            public void onAdClicked() {
+                                super.onAdClicked();
+                                isChecked = true;
+                                AppPreferences.setButtonCLicked(getActivity(), true);
+                                Intent intent = new Intent(getActivity(), QRcode.class);
+                                startActivity(intent);
+                                mInterstitialAd = null;
+                            }
+                        });
+                    } else {
+                        Intent intent = new Intent(getActivity(), QRcode.class);
+                        startActivity(intent);                    }
+                } else {
+                    Intent intent = new Intent(getActivity(), QRcode.class);
+                    startActivity(intent);
+                }
             }
         });
+
         recyclerView = view.findViewById(R.id.rv);
-
-
 
         items = new ArrayList<File>();
         pdfArrayList = new ArrayList<>();
@@ -251,33 +295,27 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                 StartMergeActivityForAllImages("ImagesSearch");
             }
         });
-        displaypdf();
-
+        displayPdf();
 
         searchView.addTextChangedListener(new TextWatcher() {
-                                              @Override
-                                              public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                                              }
+            }
 
-                                              @Override
-                                              public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                                                  mAdapter.getFilter().filter(charSequence);
-                                                  search = charSequence;
-                                                  //                return false;
-                                                  mAdapter.notifyDataSetChanged();
+                mAdapter.getFilter().filter(charSequence);
+                search = charSequence;
+                mAdapter.notifyDataSetChanged();
+            }
 
-                                                  //
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
 
-                                              }
-
-                                              @Override
-                                              public void afterTextChanged(Editable editable) {
-                                              }
-
-                                          }
-        );
+        });
 
         RelativeLayout maddCameraFAB = view.findViewById(R.id.mainaddCameraFAB);
         RelativeLayout maddFilesFAB = view.findViewById(R.id.mainaddFilesFAB);
@@ -293,13 +331,33 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         return view;
     }
 
+    public void setAds() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        InterstitialAd.load(getActivity(), getString(R.string.adUnitID), adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        mInterstitialAd = interstitialAd;
+                        Log.i("TAG", "onAdLoaded");
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+                        Log.i("TAG", loadAdError.getMessage());
+                        mInterstitialAd = null;
+                    }
+                });
+    }
 
     public void StartMergeActivity(String message) {
         askPermission();
         Intent intent = new Intent(getActivity(), ImageToPDF.class);
         intent.putExtra("ActivityAction", message);
         startActivityForResult(intent, Merge_Request_CODE);
-
     }
 
     public void StartMergeActivityForAllImages(String message) {
@@ -321,8 +379,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private MenuItem mainMenuItem;
-    private boolean isChecked = false;
     Comparator<File> comparator = null;
 
     @Override
@@ -330,19 +386,16 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.nameSort:
-//                mainMenuItem.setTitle("Name");
                 comparator = FileComparator.getNameComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
                 return true;
             case R.id.modifiedSort:
-//                mainMenuItem.setTitle("Modified");
                 comparator = FileComparator.getLastModifiedComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
                 return true;
             case R.id.sizeSort:
-//                mainMenuItem.setTitle("Size");
                 comparator = FileComparator.getSizeComparator();
                 FileComparator.isDescending = isChecked;
                 sortFiles(comparator);
@@ -505,22 +558,10 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                     showBottomSheetDialog(value);
                 }
             }
-
-//            @RequiresApi(api = Build.VERSION_CODES.M)
-//            @Override
-//            public void onItemLongClick(View view, File obj, int pos) {
-//                enableActionMode(pos);
-//                Toast.makeText(getActivity(), "item clicked :" + pos, Toast.LENGTH_SHORT).show();
-//            }
-
-
         });
-
-
         recyclerView.setAdapter(mAdapter);
     }
 
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     private void deleteItems() {
         List<Integer> selectedItemPositions = mAdapter.getSelectedItems();
         for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
@@ -570,7 +611,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                         actionMode = null;
 
                     }
-                }, position);/*startActionMode(actionModeCallback);*/
+                }, position);
             }
         }
         toggleSelection(position);
@@ -606,7 +647,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
 
     public void setPackageManager(PackageManager packageManager) {
-        this.setPackageManager(packageManager);/* = packageManager;*/
+        this.setPackageManager(packageManager);
     }
 
     @Override
@@ -718,7 +759,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                     intent.putExtra("file_path", "" + uriToSend);
                     startActivity(intent);
                 } else {
-                    File file=new File(Environment.getExternalStorageDirectory()+"/MultiImageConverter/"+name);
+                    File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter/" +name);
                     Uri path= FileProvider.getUriForFile(getActivity(),"com.example.multipleimageconverter" + ".provider",file);
 
                     Intent intent=new Intent(Intent.ACTION_VIEW);
@@ -740,7 +781,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         });
     }
 
-    //:TODO Rename 717 yahan ana hy :
     public void showCustomRenameDialog(final File currentFile) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = this.getLayoutInflater();
@@ -766,7 +806,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                             from.renameTo(to);
                         from.delete();
                         pdfArrayList.clear();
-                        displaypdf();
+                        displayPdf();
                     }
                 }
             });
@@ -814,7 +854,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                 currentFile.delete();
                 pdfArrayList.clear();
                 mAdapter.notifyDataSetChanged();
-                displaypdf();
+                displayPdf();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -831,7 +871,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     private void showDialogAbout() {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // before
-//        dialog.setContentView(R.layout.dialog_about);
         dialog.setCancelable(true);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -944,10 +983,10 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         return arrayList;
     }
 
-    public void displaypdf() {
+    public void displayPdf() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
-        File file = new File(Environment.getExternalStoragePublicDirectory("").getAbsolutePath() + "/MultiImageConverter");
+        File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter");
         if (!file.exists()) {
             file.mkdirs();
         }
@@ -961,6 +1000,5 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
         }
     }
-
 
 }

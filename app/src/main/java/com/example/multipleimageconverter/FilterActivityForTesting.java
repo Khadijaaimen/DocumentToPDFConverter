@@ -49,6 +49,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.multipleimageconverter.util.Utils;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.snackbar.Snackbar;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
@@ -96,6 +104,8 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
     LinearLayoutManager mLinearLayoutManager;
     ArrayList<Uri> arrayListCropped;
     Bitmap myLogo;
+    InterstitialAd mInterstitialAd;
+    Boolean isChecked = false, isButtonClicked;
     ArrayList<Bitmap> filterImage = new ArrayList<>();
     ArrayList<Uri> finalBitmapList = new ArrayList<>();
 
@@ -157,8 +167,6 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         imageReverseFilter = findViewById(R.id.imageReverseFilter);
         filterListSize = findViewById(R.id.filterListSize);
 
-//        currentImage = recyclerView.findViewById(R.id.img);
-
         Bundle bundle = getIntent().getExtras();
         filterNext = findViewById(R.id.filternext);
         imageView = findViewById(R.id.image_preview);
@@ -169,6 +177,18 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
             filterListSize.setVisibility(View.GONE);
             imageReverseFilter.setVisibility(View.GONE);
 
+        }
+
+        isButtonClicked = AppPreferences.isButtonCLicked(getApplication());
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
+        if (!isButtonClicked) {
+            setAds();
         }
 
         myLogo = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.photo);
@@ -211,7 +231,6 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
                 if (selectedImageIndex + 1 >= arrayListCropped.size()) {
                     filterNext.setVisibility(View.GONE);
                 }
-//                changeImage(Utils.uriToBitmap(getApplicationContext(), arrayListCropped.get(selectedImageIndex)), selectedFiltersBitmap.get(selectedImageIndex).toString());
 
                 imageReverseFilter.setVisibility(View.VISIBLE);
 
@@ -228,7 +247,6 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
                         .into(imageView);
 
                 filterListSize.setText(selectedImageIndex + 1 + "/" + String.valueOf(arrayListCropped.size()));
-//                changeImage(Utils.uriToBitmap(getApplicationContext(), arrayListCropped.get(selectedImageIndex)), selectedFiltersBitmap.get(selectedImageIndex).toString());
 
                 if (selectedImageIndex <= 0) {
                     imageReverseFilter.setVisibility(View.GONE);
@@ -249,62 +267,220 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         });
     }
 
-    public void saveImageToGallery() {
-        mainActivity = this;
-        getImageUri(mainActivity, selectedFiltersBitmap);
-        Dexter.withActivity(this).withPermissions(READ_EXTERNAL_STORAGE,
-                WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        File file = null;
-                        if (report.areAllPermissionsGranted()) {
-                            Bitmap myBitmap = null;
+    public void setAds() {
+        AdRequest adRequest = new AdRequest.Builder().build();
 
-                            for (Uri uri : finalBitmapList) {
-                                myBitmap = Utils.uriToBitmap(FilterActivityForTesting.this, uri);
-                                String root = Environment.getExternalStorageDirectory().toString()+ "/MultiImageConverter";
-                                File myDir = new File(root);
-                                myDir.mkdirs();
-                                Random generator = new Random();
-                                int n = 10000;
-                                n = generator.nextInt(n);
-                                String fname = "Image-" + n + ".jpg";
-                                file = new File(myDir, fname);
-                                System.out.println(file.getAbsolutePath());
-                                if (file.exists()) file.delete();
-                                Log.i("LOAD", root + fname);
-                                try {
-                                    FileOutputStream out = new FileOutputStream(file);
-                                    myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-                                    out.flush();
-                                    out.close();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+        InterstitialAd.load(this, getString(R.string.adUnitID), adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        mInterstitialAd = interstitialAd;
+                        Log.i("TAG", "onAdLoaded");
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+                        Log.i("TAG", loadAdError.getMessage());
+                        mInterstitialAd = null;
+                    }
+                });
+    }
+
+    public void saveImageToGallery() {
+        if (!isButtonClicked) {
+            if (mInterstitialAd != null) {
+                mInterstitialAd.show(FilterActivityForTesting.this);
+
+                mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                        mainActivity = FilterActivityForTesting.this;
+                        getImageUri(mainActivity, selectedFiltersBitmap);
+                        Dexter.withActivity(mainActivity).withPermissions(READ_EXTERNAL_STORAGE,
+                                WRITE_EXTERNAL_STORAGE)
+                                .withListener(new MultiplePermissionsListener() {
+                                    @Override
+                                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                        File file = null;
+                                        if (report.areAllPermissionsGranted()) {
+                                            Bitmap myBitmap = null;
+
+                                            for (Uri uri : finalBitmapList) {
+                                                myBitmap = Utils.uriToBitmap(FilterActivityForTesting.this, uri);
+                                                String root = getApplication().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter";
+                                                File myDir = new File(root);
+                                                myDir.mkdirs();
+                                                Random generator = new Random();
+                                                int n = 10000;
+                                                n = generator.nextInt(n);
+                                                String fname = "Image-" + n + ".jpg";
+                                                file = new File(myDir, fname);
+                                                System.out.println(file.getAbsolutePath());
+                                                if (file.exists()) file.delete();
+                                                Log.i("LOAD", root + fname);
+                                                try {
+                                                    FileOutputStream out = new FileOutputStream(file);
+                                                    myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                                                    out.flush();
+                                                    out.close();
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                                MediaScannerConnection.scanFile(getApplicationContext(), new String[]{file.getPath()}, new String[]{"image/jpeg"}, null);
+                                            }
+                                            if (file.exists()) {
+                                                Toast.makeText(getApplicationContext(), "Image saved to gallery!", Toast.LENGTH_LONG).show();
+
+                                                Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
+                                                startActivity(intent);
+                                                mAdapter.notifyItemInserted(0);
+                                                mAdapter.notifyDataSetChanged();
+                                                finalBitmapList.clear();
+                                            } else {
+                                                Toast.makeText(getApplicationContext(), "Unable to save image!", Toast.LENGTH_LONG).show();
+                                            }
+
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions,
+                                                                                   PermissionToken token) {
+                                        token.continuePermissionRequest();
+                                    }
+                                }).check();
+                        mInterstitialAd = null;
+                        setAds();
+                    }
+
+                    @Override
+                    public void onAdClicked() {
+                        super.onAdClicked();
+                        isChecked = true;
+                        AppPreferences.setButtonCLicked(getApplication(), true);
+                        mainActivity = FilterActivityForTesting.this;
+                        getImageUri(mainActivity, selectedFiltersBitmap);
+                        Dexter.withActivity(mainActivity).withPermissions(READ_EXTERNAL_STORAGE,
+                                WRITE_EXTERNAL_STORAGE)
+                                .withListener(new MultiplePermissionsListener() {
+                                    @Override
+                                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                        File file = null;
+                                        if (report.areAllPermissionsGranted()) {
+                                            Bitmap myBitmap = null;
+
+                                            for (Uri uri : finalBitmapList) {
+                                                myBitmap = Utils.uriToBitmap(FilterActivityForTesting.this, uri);
+                                                String root = getApplication().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter";
+                                                File myDir = new File(root);
+                                                myDir.mkdirs();
+                                                Random generator = new Random();
+                                                int n = 10000;
+                                                n = generator.nextInt(n);
+                                                String fname = "Image-" + n + ".jpg";
+                                                file = new File(myDir, fname);
+                                                System.out.println(file.getAbsolutePath());
+                                                if (file.exists()) file.delete();
+                                                Log.i("LOAD", root + fname);
+                                                try {
+                                                    FileOutputStream out = new FileOutputStream(file);
+                                                    myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                                                    out.flush();
+                                                    out.close();
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                                MediaScannerConnection.scanFile(getApplicationContext(), new String[]{file.getPath()}, new String[]{"image/jpeg"}, null);
+                                            }
+                                            if (file.exists()) {
+                                                Toast.makeText(getApplicationContext(), "Image saved to gallery!", Toast.LENGTH_LONG).show();
+
+                                                Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
+                                                startActivity(intent);
+                                                mAdapter.notifyItemInserted(0);
+                                                mAdapter.notifyDataSetChanged();
+                                                finalBitmapList.clear();
+                                            } else {
+                                                Toast.makeText(getApplicationContext(), "Unable to save image!", Toast.LENGTH_LONG).show();
+                                            }
+
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions,
+                                                                                   PermissionToken token) {
+                                        token.continuePermissionRequest();
+                                    }
+                                }).check();
+                        mInterstitialAd = null;
+                    }
+                });
+            }
+        } else {
+            mainActivity = FilterActivityForTesting.this;
+            getImageUri(mainActivity, selectedFiltersBitmap);
+            Dexter.withActivity(mainActivity).withPermissions(READ_EXTERNAL_STORAGE,
+                    WRITE_EXTERNAL_STORAGE)
+                    .withListener(new MultiplePermissionsListener() {
+                        @Override
+                        public void onPermissionsChecked(MultiplePermissionsReport report) {
+                            File file = null;
+                            if (report.areAllPermissionsGranted()) {
+                                Bitmap myBitmap = null;
+
+                                for (Uri uri : finalBitmapList) {
+                                    myBitmap = Utils.uriToBitmap(FilterActivityForTesting.this, uri);
+                                    String root = getApplication().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter";
+                                    File myDir = new File(root);
+                                    myDir.mkdirs();
+                                    Random generator = new Random();
+                                    int n = 10000;
+                                    n = generator.nextInt(n);
+                                    String fname = "Image-" + n + ".jpg";
+                                    file = new File(myDir, fname);
+                                    System.out.println(file.getAbsolutePath());
+                                    if (file.exists()) file.delete();
+                                    Log.i("LOAD", root + fname);
+                                    try {
+                                        FileOutputStream out = new FileOutputStream(file);
+                                        myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                                        out.flush();
+                                        out.close();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    MediaScannerConnection.scanFile(getApplicationContext(), new String[]{file.getPath()}, new String[]{"image/jpeg"}, null);
+                                }
+                                if (file.exists()) {
+                                    Toast.makeText(getApplicationContext(), "Image saved to gallery!", Toast.LENGTH_LONG).show();
+
+                                    Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
+                                    startActivity(intent);
+                                    mAdapter.notifyItemInserted(0);
+                                    mAdapter.notifyDataSetChanged();
+                                    finalBitmapList.clear();
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "Unable to save image!", Toast.LENGTH_LONG).show();
                                 }
 
-                                MediaScannerConnection.scanFile(getApplicationContext(), new String[]{file.getPath()}, new String[]{"image/jpeg"}, null);
                             }
-                            if (file.exists()) {
-                                Toast.makeText(getApplicationContext(), "Image saved to gallery!", Toast.LENGTH_LONG).show();
-//                                openImage(Uri.parse(path));
-
-                                Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
-                                startActivity(intent);
-                                finalBitmapList.clear();
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Unable to save image!", Toast.LENGTH_LONG).show();
-                            }
-
                         }
-                    }
 
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions,
-                                                                   PermissionToken token) {
-                        token.continuePermissionRequest();
-                    }
-                }).check();
+                        @Override
+                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions,
+                                                                       PermissionToken token) {
+                            token.continuePermissionRequest();
+                        }
+                    }).check();
+        }
 
     }
 
@@ -335,11 +511,6 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         ThumbnailsManager.addThumb(thumbnailItem);
 
         List<Filter> filters = FilterPack.getFilterPack(this);
-
-//        ArrayList<Filter> revArrayList = new ArrayList<Filter>();
-//        for (int i = filters.size() - 1; i >= 0; i--) {
-//            revArrayList.add(filters.get(i));
-//        }
 
         for (Filter filter : filters) {
             ThumbnailItem tI = new ThumbnailItem();
@@ -376,7 +547,6 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         startActivity(intent);
     }
 
-    // FIXME: 07/02/2022 Dobara aana haii yahan.....
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public void myCustomAlertDialog() {
         MyDialog = new Dialog(FilterActivityForTesting.this);
@@ -396,15 +566,6 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
         _dialogsave.setOnClickListener(view -> saveImageToGallery());
 
         _dialogconverttopdf.setOnClickListener(view -> {
-            // FIXME: 07/02/2022 For each laga k
-/*            steps ; arraylistcropped py foreach laga
-                    index items ko document me pass kr
-                    addToDataStore(document);*/
-
-
-//            for (int i=0; i<=arraylistcropped.size(); i++){
-
-//            }
 
             convertToPDF();
 
@@ -415,93 +576,268 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private void convertToPDF() {
-        mainActivity = this;
-        getImageUri(mainActivity, selectedFiltersBitmap);
-        for (Uri uri : finalBitmapList) {
-            ImageDocument document = new ImageDocument(uri, FilterActivityForTesting.this);
-            documents.add(document);
-            mAdapter.notifyItemInserted(documents.size());
-        }
-        if (filterImage.size() < 1) {
-            Toast.makeText(this, "You need to add at least 1 image file", Toast.LENGTH_LONG).show();
+        if (!isButtonClicked) {
+            if (mInterstitialAd != null) {
+                mInterstitialAd.show(FilterActivityForTesting.this);
+
+                mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                        mainActivity = FilterActivityForTesting.this;
+                        getImageUri(mainActivity, selectedFiltersBitmap);
+                        for (Uri uri : finalBitmapList) {
+                            ImageDocument document = new ImageDocument(uri, FilterActivityForTesting.this);
+                            documents.add(document);
+                            mAdapter.notifyItemInserted(documents.size());
+                        }
+                        if (filterImage.size() < 1) {
+                            Toast.makeText(mainActivity, "You need to add at least 1 image file", Toast.LENGTH_LONG).show();
+                        } else {
+                            final Dialog dialog = new Dialog(mainActivity);
+                            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                            final View alertView = getLayoutInflater().inflate(R.layout.file_alert_dialog, null);
+                            LinearLayout layout = alertView.findViewById(R.id.savePDFLayout);
+                            final AppCompatSpinner spn_timezone = alertView.findViewById(R.id.pageorientation);
+
+                            String[] timezones = new String[]{"Portrait", "Landscape"};
+                            ArrayAdapter<String> array = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, timezones);
+                            array.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                            spn_timezone.setAdapter(array);
+                            spn_timezone.setSelection(0);
+
+                            final AppCompatSpinner pageSize = alertView.findViewById(R.id.pagesize);
+
+                            String[] sizes = new String[]{"Fit (Same page size as image)", "A4 (297x210 mm)", "US Letter (215x279.4 mm)"};
+                            ArrayAdapter<String> pagearrary = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, sizes);
+                            pagearrary.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                            pageSize.setAdapter(pagearrary);
+                            pageSize.setSelection(1);
+
+                            final AppCompatSpinner pageMargin = alertView.findViewById(R.id.margin);
+                            String[] margins = new String[]{"No margin", "Small", "Big"};
+                            ArrayAdapter<String> marginArray = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, margins);
+                            marginArray.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                            pageMargin.setAdapter(marginArray);
+                            pageMargin.setSelection(0);
+
+                            final AppCompatSpinner compression = alertView.findViewById(R.id.compression);
+                            String[] compressions = new String[]{"Low", "Medium", "High"};
+                            ArrayAdapter<String> compressionArray = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, compressions);
+                            compressionArray.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                            compression.setAdapter(compressionArray);
+                            compression.setSelection(0);
+
+                            final EditText edittext = alertView.findViewById(R.id.editText2);
+                            dialog.setContentView(alertView);
+                            dialog.setCancelable(true);
+                            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                            lp.copyFrom(dialog.getWindow().getAttributes());
+                            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+                            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                            dialog.show();
+                            dialog.getWindow().setAttributes(lp);
+                            dialog.findViewById(R.id.bt_close).setOnClickListener(v -> dialog.dismiss());
+                            dialog.findViewById(R.id.bt_save).setOnClickListener(v -> {
+
+                                String fileName = edittext.getText().toString().trim();
+
+                                if (!fileName.equals("")) {
+                                    ImageToPDFAsync converter = new ImageToPDFAsync(mainActivity, documents, fileName, null);
+
+                                    converter.setPageOrientation(spn_timezone.getSelectedItem().toString());
+                                    converter.setPageMargin(pageMargin.getSelectedItem().toString());
+                                    converter.setPageSize(pageSize.getSelectedItem().toString());
+                                    converter.setCompression(compression.getSelectedItem().toString());
+                                    converter.execute();
+                                    dialog.dismiss();
+
+                                    Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
+                                    intent.putExtra("first_page", finalBitmapList.get(0));
+                                    finalBitmapList.clear();
+                                    startActivity(intent);
+                                    mAdapter.notifyItemInserted(0);
+                                    mAdapter.notifyDataSetChanged();
+                                } else {
+                                    Snackbar.make(v, "File name should not be empty", Snackbar.LENGTH_LONG).show();
+                                }
+                            });
+
+                        }
+                        mInterstitialAd = null;
+                        setAds();
+                    }
+
+                    @Override
+                    public void onAdClicked() {
+                        super.onAdClicked();
+                        isChecked = true;
+                        AppPreferences.setButtonCLicked(getApplication(), true);
+                        mainActivity = FilterActivityForTesting.this;
+                        getImageUri(mainActivity, selectedFiltersBitmap);
+                        for (Uri uri : finalBitmapList) {
+                            ImageDocument document = new ImageDocument(uri, FilterActivityForTesting.this);
+                            documents.add(document);
+                            mAdapter.notifyItemInserted(documents.size());
+                        }
+                        if (filterImage.size() < 1) {
+                            Toast.makeText(mainActivity, "You need to add at least 1 image file", Toast.LENGTH_LONG).show();
+                        } else {
+                            final Dialog dialog = new Dialog(mainActivity);
+                            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                            final View alertView = getLayoutInflater().inflate(R.layout.file_alert_dialog, null);
+                            LinearLayout layout = alertView.findViewById(R.id.savePDFLayout);
+                            final AppCompatSpinner spn_timezone = alertView.findViewById(R.id.pageorientation);
+
+                            String[] timezones = new String[]{"Portrait", "Landscape"};
+                            ArrayAdapter<String> array = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, timezones);
+                            array.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                            spn_timezone.setAdapter(array);
+                            spn_timezone.setSelection(0);
+
+                            final AppCompatSpinner pageSize = alertView.findViewById(R.id.pagesize);
+
+                            String[] sizes = new String[]{"Fit (Same page size as image)", "A4 (297x210 mm)", "US Letter (215x279.4 mm)"};
+                            ArrayAdapter<String> pagearrary = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, sizes);
+                            pagearrary.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                            pageSize.setAdapter(pagearrary);
+                            pageSize.setSelection(1);
+
+                            final AppCompatSpinner pageMargin = alertView.findViewById(R.id.margin);
+                            String[] margins = new String[]{"No margin", "Small", "Big"};
+                            ArrayAdapter<String> marginArray = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, margins);
+                            marginArray.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                            pageMargin.setAdapter(marginArray);
+                            pageMargin.setSelection(0);
+
+                            final AppCompatSpinner compression = alertView.findViewById(R.id.compression);
+                            String[] compressions = new String[]{"Low", "Medium", "High"};
+                            ArrayAdapter<String> compressionArray = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, compressions);
+                            compressionArray.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                            compression.setAdapter(compressionArray);
+                            compression.setSelection(0);
+
+                            final EditText edittext = alertView.findViewById(R.id.editText2);
+                            dialog.setContentView(alertView);
+                            dialog.setCancelable(true);
+                            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                            lp.copyFrom(dialog.getWindow().getAttributes());
+                            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+                            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                            dialog.show();
+                            dialog.getWindow().setAttributes(lp);
+                            dialog.findViewById(R.id.bt_close).setOnClickListener(v -> dialog.dismiss());
+                            dialog.findViewById(R.id.bt_save).setOnClickListener(v -> {
+
+                                String fileName = edittext.getText().toString().trim();
+
+                                if (!fileName.equals("")) {
+                                    ImageToPDFAsync converter = new ImageToPDFAsync(mainActivity, documents, fileName, null);
+
+                                    converter.setPageOrientation(spn_timezone.getSelectedItem().toString());
+                                    converter.setPageMargin(pageMargin.getSelectedItem().toString());
+                                    converter.setPageSize(pageSize.getSelectedItem().toString());
+                                    converter.setCompression(compression.getSelectedItem().toString());
+                                    converter.execute();
+                                    dialog.dismiss();
+
+                                    Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
+                                    intent.putExtra("first_page", finalBitmapList.get(0));
+                                    finalBitmapList.clear();
+                                    startActivity(intent);
+                                    mAdapter.notifyItemInserted(0);
+                                    mAdapter.notifyDataSetChanged();
+                                } else {
+                                    Snackbar.make(v, "File name should not be empty", Snackbar.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                        mInterstitialAd = null;
+                    }
+                });
+            }
         } else {
-            final Dialog dialog = new Dialog(mainActivity);
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            final View alertView = getLayoutInflater().inflate(R.layout.file_alert_dialog, null);
-            LinearLayout layout = alertView.findViewById(R.id.savePDFLayout);
-            final AppCompatSpinner spn_timezone = alertView.findViewById(R.id.pageorientation);
+            mainActivity = this;
+            getImageUri(mainActivity, selectedFiltersBitmap);
+            for (Uri uri : finalBitmapList) {
+                ImageDocument document = new ImageDocument(uri, FilterActivityForTesting.this);
+                documents.add(document);
+                mAdapter.notifyItemInserted(documents.size());
+            }
+            if (filterImage.size() < 1) {
+                Toast.makeText(this, "You need to add at least 1 image file", Toast.LENGTH_LONG).show();
+            } else {
+                final Dialog dialog = new Dialog(mainActivity);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                final View alertView = getLayoutInflater().inflate(R.layout.file_alert_dialog, null);
+                LinearLayout layout = alertView.findViewById(R.id.savePDFLayout);
+                final AppCompatSpinner spn_timezone = alertView.findViewById(R.id.pageorientation);
 
-            String[] timezones = new String[]{"Portrait", "Landscape"};
-            ArrayAdapter<String> array = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, timezones);
-            array.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
-            spn_timezone.setAdapter(array);
-            spn_timezone.setSelection(0);
+                String[] timezones = new String[]{"Portrait", "Landscape"};
+                ArrayAdapter<String> array = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, timezones);
+                array.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                spn_timezone.setAdapter(array);
+                spn_timezone.setSelection(0);
 
-            final AppCompatSpinner pageSize = alertView.findViewById(R.id.pagesize);
+                final AppCompatSpinner pageSize = alertView.findViewById(R.id.pagesize);
 
-            String[] sizes = new String[]{"Fit (Same page size as image)", "A4 (297x210 mm)", "US Letter (215x279.4 mm)"};
-            ArrayAdapter<String> pagearrary = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, sizes);
-            pagearrary.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
-            pageSize.setAdapter(pagearrary);
-            pageSize.setSelection(1);
+                String[] sizes = new String[]{"Fit (Same page size as image)", "A4 (297x210 mm)", "US Letter (215x279.4 mm)"};
+                ArrayAdapter<String> pagearrary = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, sizes);
+                pagearrary.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                pageSize.setAdapter(pagearrary);
+                pageSize.setSelection(1);
 
-            final AppCompatSpinner pageMargin = alertView.findViewById(R.id.margin);
-            String[] margins = new String[]{"No margin", "Small", "Big"};
-            ArrayAdapter<String> marginArray = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, margins);
-            marginArray.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
-            pageMargin.setAdapter(marginArray);
-            pageMargin.setSelection(0);
+                final AppCompatSpinner pageMargin = alertView.findViewById(R.id.margin);
+                String[] margins = new String[]{"No margin", "Small", "Big"};
+                ArrayAdapter<String> marginArray = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, margins);
+                marginArray.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                pageMargin.setAdapter(marginArray);
+                pageMargin.setSelection(0);
 
-            final AppCompatSpinner compression = alertView.findViewById(R.id.compression);
-            String[] compressions = new String[]{"Low", "Medium", "High"};
-            ArrayAdapter<String> compressionArray = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, compressions);
-            compressionArray.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
-            compression.setAdapter(compressionArray);
-            compression.setSelection(0);
+                final AppCompatSpinner compression = alertView.findViewById(R.id.compression);
+                String[] compressions = new String[]{"Low", "Medium", "High"};
+                ArrayAdapter<String> compressionArray = new ArrayAdapter<>(mainActivity, R.layout.simple_spinner_item, compressions);
+                compressionArray.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+                compression.setAdapter(compressionArray);
+                compression.setSelection(0);
 
-            final EditText edittext = alertView.findViewById(R.id.editText2);
-            dialog.setContentView(alertView);
-            dialog.setCancelable(true);
-            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-            lp.copyFrom(dialog.getWindow().getAttributes());
-            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            dialog.show();
-            dialog.getWindow().setAttributes(lp);
-            dialog.findViewById(R.id.bt_close).setOnClickListener(v -> dialog.dismiss());
-            dialog.findViewById(R.id.bt_save).setOnClickListener(v -> {
+                final EditText edittext = alertView.findViewById(R.id.editText2);
+                dialog.setContentView(alertView);
+                dialog.setCancelable(true);
+                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                lp.copyFrom(dialog.getWindow().getAttributes());
+                lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                dialog.show();
+                dialog.getWindow().setAttributes(lp);
+                dialog.findViewById(R.id.bt_close).setOnClickListener(v -> dialog.dismiss());
+                dialog.findViewById(R.id.bt_save).setOnClickListener(v -> {
 
-                String fileName = edittext.getText().toString().trim();
+                    String fileName = edittext.getText().toString().trim();
 
-                if (!fileName.equals("")) {
-                    ImageToPDFAsync converter = new ImageToPDFAsync(mainActivity, documents, fileName, null);
+                    if (!fileName.equals("")) {
+                        ImageToPDFAsync converter = new ImageToPDFAsync(mainActivity, documents, fileName, null);
 
-                    converter.setPageOrientation(spn_timezone.getSelectedItem().toString());
-                    converter.setPageMargin(pageMargin.getSelectedItem().toString());
-                    converter.setPageSize(pageSize.getSelectedItem().toString());
-                    converter.setCompression(compression.getSelectedItem().toString());
-                    converter.execute();
-                    dialog.dismiss();
+                        converter.setPageOrientation(spn_timezone.getSelectedItem().toString());
+                        converter.setPageMargin(pageMargin.getSelectedItem().toString());
+                        converter.setPageSize(pageSize.getSelectedItem().toString());
+                        converter.setCompression(compression.getSelectedItem().toString());
+                        converter.execute();
+                        dialog.dismiss();
 
-//                    Bundle bundle = new Bundle();
-//                    String myMessage = String.valueOf(finalBitmapList.get(0));
-//                    bundle.putSerializable("message", myMessage );
-//                    HomeFragment fragInfo = new HomeFragment();
-//                    fragInfo.setArguments(bundle);
+                        Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
+                        intent.putExtra("first_page", finalBitmapList.get(0));
+                        finalBitmapList.clear();
+                        startActivity(intent);
+                        mAdapter.notifyItemInserted(0);
+                        mAdapter.notifyDataSetChanged();
+                    } else {
+                        Snackbar.make(v, "File name should not be empty", Snackbar.LENGTH_LONG).show();
+                    }
+                });
 
-                    Intent intent = new Intent(FilterActivityForTesting.this, MainActivity.class);
-                    intent.putExtra("first_page", finalBitmapList.get(0));
-                    finalBitmapList.clear();
-                    startActivity(intent);
-                    mAdapter.notifyItemInserted(0);
-                    mAdapter.notifyDataSetChanged();
-                } else {
-                    Snackbar.make(v, "File name should not be empty", Snackbar.LENGTH_LONG).show();
-                }
-            });
-
+            }
         }
-
     }
 
     @Override
@@ -607,5 +943,11 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
             e.printStackTrace();
             Log.e("filterClick", "onFilterSelected: Error we got : " + e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppPreferences.setButtonCLicked(getApplication(), false);
     }
 }
