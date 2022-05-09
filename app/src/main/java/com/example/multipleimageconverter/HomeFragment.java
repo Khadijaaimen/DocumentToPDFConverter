@@ -759,7 +759,13 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                     intent.putExtra("file_path", "" + uriToSend);
                     startActivity(intent);
                 } else {
-                    File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter/" +name);
+                    File file;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter/" + name);
+                    } else{
+                        file = new File(Environment
+                                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/MultiImageConverter/" + name);
+                    }
                     Uri path= FileProvider.getUriForFile(getActivity(),"com.example.multipleimageconverter" + ".provider",file);
 
                     Intent intent=new Intent(Intent.ACTION_VIEW);
