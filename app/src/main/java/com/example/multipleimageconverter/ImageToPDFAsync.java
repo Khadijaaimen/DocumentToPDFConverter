@@ -84,7 +84,13 @@ public class ImageToPDFAsync extends AsyncTask<Void, Integer, Boolean> {
     @Override
     protected Boolean doInBackground(Void... voids) {
         ContextWrapper cw = new ContextWrapper(filteractivity.getApplication());
-        File myDir = new File(cw.getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter");
+        File myDir;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            myDir = new File(cw.getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter");
+        } else{
+            myDir = new File(Environment
+                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/MultiImageConverter");
+        }
         if (!myDir.exists()) {
             myDir.mkdirs();
         }

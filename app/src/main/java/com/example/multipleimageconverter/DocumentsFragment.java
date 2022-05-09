@@ -42,10 +42,17 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.mikhaellopez.circularprogressbar.BuildConfig;
 
 import java.io.File;
@@ -111,47 +118,67 @@ public class DocumentsFragment extends Fragment implements MainRecycleViewAdapte
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorites, container, false);
-
-//        CheckStoragePermission();
-
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            CheckStoragePermission();
-        }
-
-        linearLayoutPlease= view.findViewById(R.id.layoutPlease);
-        linearLayoutPlease.setVisibility(View.VISIBLE);
+//
+//        linearLayoutPlease = view.findViewById(R.id.layoutPlease);
+//        linearLayoutPlease.setVisibility(View.VISIBLE);
 
         searchView = view.findViewById(R.id.search_bar2);
-        pdfArrayList = new ArrayList<>();
-        pdfArrayList.addAll(getfile(Environment.getExternalStorageDirectory()));
 
-        mAdapter = new MainAdapter(getActivity(), pdfArrayList, mOnItemClickListener);
         recyclerView2 = view.findViewById(R.id.rv2);
-        recyclerView2.setAdapter(mAdapter);
-        recyclerView2.setHasFixedSize(true);
-        recyclerView2.setLayoutManager(new LinearLayoutManager(getActivity()));
+        displayPdf();
+
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//            CheckStoragePermission();
+            Dexter.withActivity(getActivity()).withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    .withListener(new PermissionListener() {
+                        @Override
+                        public void onPermissionGranted(PermissionGrantedResponse response) {
+                            displayPdf();
+                        }
+
+                        @Override
+                        public void onPermissionDenied(PermissionDeniedResponse response) {
+
+                        }
+
+                        @Override
+                        public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+                            token.continuePermissionRequest();
+                        }
+                    }).check();
+        }
+
+
+//        recyclerView2.setAdapter(mAdapter);
+//        recyclerView2.setHasFixedSize(true);
+//        recyclerView2.setLayoutManager(new LinearLayoutManager(getActivity()));
+//
+//        pdfArrayList.addAll(getfile(Environment.getExternalStorageDirectory()));
+//
+//        mAdapter = new MainAdapter(getActivity(), pdfArrayList, mOnItemClickListener);
+
         mAdapter.notifyDataSetChanged();
         searchView.addTextChangedListener(new TextWatcher() {
-                  @Override
-                  public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                                              @Override
+                                              public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                  }
+                                              }
 
-                  @Override
-                  public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                                              @Override
+                                              public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                      mAdapter.getFilter().filter(charSequence);
-                      search = charSequence;
-                      mAdapter.notifyDataSetChanged();
+                                                  mAdapter.getFilter().filter(charSequence);
+                                                  search = charSequence;
+                                                  mAdapter.notifyDataSetChanged();
 
 
-                  }
+                                              }
 
-                  @Override
-                  public void afterTextChanged(Editable editable) {
-                  }
+                                              @Override
+                                              public void afterTextChanged(Editable editable) {
+                                              }
 
-              }
+                                          }
         );
 
         CreateDataSource();
@@ -709,56 +736,66 @@ public class DocumentsFragment extends Fragment implements MainRecycleViewAdapte
                             booleanpdf = false;
                         } else {
                             pdfArrayList.add(listFile[i]);
-
                         }
                     }
                 }
             }
         }
 
-        linearLayoutPlease.setVisibility(View.GONE);
+//        linearLayoutPlease.setVisibility(View.GONE);
         return (ArrayList<File>) pdfArrayList;
     }
 
-    private void fn_permission() {
-        if ((ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == REQUEST_PERMISSIONS) {
+//
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//
+//                boolean_permission = true;
+//                getfile(dir);
+//
+//                mAdapter = new MainAdapter(getActivity(), pdfArrayList, mOnItemClickListener);
+//                recyclerView2.setAdapter(mAdapter);
+//
+//            } else {
+//                Toast.makeText(getActivity(), "Please allow the permission", Toast.LENGTH_LONG).show();
+//
+//            }
+//        }
+//
+//    }
 
-            if ((ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE))) {
+    public ArrayList<File> findPdf(File file) {
+        ArrayList<File> arrayList = new ArrayList<>();
+        File[] files = file.listFiles();
+        for (File singleFile : files) {
+
+            if (singleFile.isDirectory() && !singleFile.isHidden()) {
+
+                arrayList.addAll(findPdf(singleFile));
             } else {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
-                        REQUEST_PERMISSIONS);
-
-            }
-        } else {
-            boolean_permission = true;
-
-            getfile(dir);
-
-            mAdapter = new MainAdapter(getActivity(), pdfArrayList, mOnItemClickListener);
-            recyclerView2.setAdapter(mAdapter);
-
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSIONS) {
-
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                boolean_permission = true;
-                getfile(dir);
-
-                mAdapter = new MainAdapter(getActivity(), pdfArrayList, mOnItemClickListener);
-                recyclerView2.setAdapter(mAdapter);
-
-            } else {
-                Toast.makeText(getActivity(), "Please allow the permission", Toast.LENGTH_LONG).show();
-
+                if (singleFile.getName().contains(".pdf")) {
+                    arrayList.add(singleFile);
+                }
             }
         }
-
+        return arrayList;
     }
 
+    public void displayPdf() {
+        recyclerView2.setHasFixedSize(true);
+        recyclerView2.setLayoutManager(new GridLayoutManager(getActivity(), 1));
+        pdfArrayList = new ArrayList<>();
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R){
+            pdfArrayList.addAll(findPdf(getActivity().getExternalFilesDir(null)));
+        } else{
+            pdfArrayList.addAll(findPdf(Environment.getExternalStorageDirectory()));
+        }
+        mAdapter = new MainAdapter(getActivity(), pdfArrayList, mOnItemClickListener);
+        recyclerView2.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+    }
 }

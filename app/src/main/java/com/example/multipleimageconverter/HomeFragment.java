@@ -986,7 +986,13 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     public void displayPdf() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
-        File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter");
+        File file;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R){
+            file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_DCIM).toString() + "/MultiImageConverter");
+        } else{
+            file = new File(Environment
+                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/MultiImageConverter");
+        }
         if (!file.exists()) {
             file.mkdirs();
         }

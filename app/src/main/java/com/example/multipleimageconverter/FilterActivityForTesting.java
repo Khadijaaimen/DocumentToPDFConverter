@@ -311,7 +311,13 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
 
                                             for (Uri uri : finalBitmapList) {
                                                 myBitmap = Utils.uriToBitmap(FilterActivityForTesting.this, uri);
-                                                String root = getApplication().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter";
+                                                String root;
+                                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                                                    root = getApplication().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter";
+                                                } else{
+                                                    root = Environment
+                                                            .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/MultiImageConverter";
+                                                }
                                                 File myDir = new File(root);
                                                 myDir.mkdirs();
                                                 Random generator = new Random();
@@ -376,7 +382,13 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
 
                                             for (Uri uri : finalBitmapList) {
                                                 myBitmap = Utils.uriToBitmap(FilterActivityForTesting.this, uri);
-                                                String root = getApplication().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter";
+                                                String root;
+                                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                                                    root = getApplication().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter";
+                                                } else{
+                                                    root = Environment
+                                                            .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/MultiImageConverter";
+                                                }
                                                 File myDir = new File(root);
                                                 myDir.mkdirs();
                                                 Random generator = new Random();
@@ -437,7 +449,13 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
 
                                 for (Uri uri : finalBitmapList) {
                                     myBitmap = Utils.uriToBitmap(FilterActivityForTesting.this, uri);
-                                    String root = getApplication().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter";
+                                    String root;
+                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                                        root = getApplication().getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/MultiImageConverter";
+                                    } else{
+                                        root = Environment
+                                                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/MultiImageConverter";
+                                    }
                                     File myDir = new File(root);
                                     myDir.mkdirs();
                                     Random generator = new Random();
@@ -475,11 +493,14 @@ public class FilterActivityForTesting extends AppCompatActivity implements ViewE
                         }
 
                         @Override
-                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions,
-                                                                       PermissionToken token) {
+                        public void onPermissionRationaleShouldBeShown
+                                (List<PermissionRequest> permissions,
+                                 PermissionToken token) {
                             token.continuePermissionRequest();
                         }
-                    }).check();
+                    }).
+
+                    check();
         }
 
     }
