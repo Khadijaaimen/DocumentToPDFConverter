@@ -65,12 +65,13 @@
 
 
 
-    <com.example.multipleimageconverter.RecyclerViewEmptySupport
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv2"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_400sdp"
         android:layout_marginTop="@dimen/_10sdp"
         android:layout_marginEnd="@dimen/_1sdp"
+        tools:listitem="@layout/item_file"
         app:layout_constraintTop_toBottomOf="@id/layoutPlease"
         app:layout_constraintStart_toStartOf="parent" />
 

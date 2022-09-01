@@ -209,6 +209,8 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
             CheckStoragePermission();
         }
 
+        askPermission();
+
         isButtonClicked = AppPreferences.isButtonCLicked(getActivity());
 
         MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
@@ -821,31 +823,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
                 }
             });
-//        } else {
-//            names = name.split(".jpg");
-//            String splitName = names[0];
-//            editText.setText(splitName);
-//            builder.setTitle("Rename");
-//            builder.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface dialog, int id) {
-//                    File dir = Environment.getExternalStorageDirectory();
-//                    if (dir.exists()) {
-//                        String root = currentFile.getName();
-//
-//                        File from = new File(dir + "/MultiImageConverter", root);
-//                        File to = new File(dir + "/MultiImageConverter", editText.getText().toString() + ".jpg");
-//                        if (from.exists())
-//                            from.renameTo(to);
-//                        pdfArrayList.clear();
-//                        displaypdf();
-//                    }
-//                }
-//            });
-//            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface dialog, int id) {
-//
-//                }
-//            });
         }
 
         AlertDialog dialog = builder.create();

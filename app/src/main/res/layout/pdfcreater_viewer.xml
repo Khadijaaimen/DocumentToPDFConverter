@@ -16,7 +16,7 @@
         android:layout_alignParentTop="true">
 
         <ImageView
-            android:id="@+id/imageview"
+            android:id="@+id/imageForward"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:focusableInTouchMode="true"

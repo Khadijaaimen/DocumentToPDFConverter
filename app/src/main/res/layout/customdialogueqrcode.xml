@@ -8,11 +8,12 @@
     android:orientation="vertical"
     android:padding="4dp">
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/_dialogIVQR"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_100sdp"
         android:gravity="center"
+        android:autoLink="web"
         android:textStyle="bold"
         android:layout_gravity="center"
         android:layout_margin="5dp"

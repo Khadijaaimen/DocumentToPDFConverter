@@ -143,6 +143,7 @@
             android:layout_width="?attr/actionBarSize"
             android:layout_height="?attr/actionBarSize"
             android:padding="@dimen/spacing_large"
+            android:visibility="gone"
             android:src="@drawable/ic_baseline_create_24"
             app:tint="@color/purple_500" />
 
@@ -150,6 +151,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Rename"
+            android:visibility="gone"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/grey_90" />
 

@@ -13,9 +13,9 @@
         android:layout_width="@dimen/_310sdp"
         android:layout_height="@dimen/_350sdp"
         android:layout_marginStart="@dimen/_10sdp"
-        app:cropBorderLineThickness="@dimen/_5sdp"
         android:layout_marginTop="@dimen/_30sdp"
         android:layout_marginEnd="@dimen/_10sdp"
+        app:cropBorderLineThickness="@dimen/_5sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,165 +26,151 @@
         android:id="@+id/currentStateCount"
         android:layout_width="@dimen/_80sdp"
         android:layout_height="@dimen/_30sdp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="@dimen/_80sdp"
+        android:layout_marginTop="@dimen/_30sdp"
         android:background="@drawable/bg_round_black"
         android:gravity="center"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.837"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cropperView" />
 
     <ImageView
-        android:id="@+id/imageview"
+        android:id="@+id/imageForward"
         android:layout_width="@dimen/_30sdp"
         android:layout_height="@dimen/_30sdp"
-        android:layout_marginEnd="@dimen/_20sdp"
-        android:layout_marginBottom="44dp"
-        android:src="@drawable/arrow_right"
+        android:layout_marginTop="@dimen/_30sdp"
         android:background="@drawable/circle"
-        app:layout_constraintBottom_toTopOf="@+id/done"
+        android:src="@drawable/arrow_right"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/currentStateCount"
+        app:layout_constraintTop_toBottomOf="@+id/cropperView"
         app:tint="@color/grey_40" />
+
     <ImageView
-        android:id="@+id/imageReverse"
+        android:id="@+id/imageBackward"
         android:layout_width="@dimen/_30sdp"
         android:layout_height="@dimen/_30sdp"
-        android:layout_marginBottom="@dimen/_34sdp"
+        android:layout_marginTop="@dimen/_30sdp"
         android:background="@drawable/circle"
         android:src="@drawable/arrow_left"
-        app:layout_constraintBottom_toTopOf="@+id/rotateleft"
         app:layout_constraintEnd_toStartOf="@+id/currentStateCount"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cropperView"
         app:tint="@color/grey_40" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/rotateleft"
-        android:layout_width="@dimen/_30sdp"
-        android:layout_height="@dimen/_30sdp"
-        android:layout_marginStart="49dp"
-        android:layout_marginEnd="39dp"
+    <RelativeLayout
+        android:id="@+id/rl1"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_20sdp"
         android:layout_marginBottom="@dimen/_40sdp"
-        android:background="@drawable/rotateleft"
-        android:backgroundTint="@color/grey_40"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/imageRotate"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/rl2"
+        app:layout_constraintStart_toStartOf="parent">
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/imageRotate"
-        android:layout_width="@dimen/_30sdp"
-        android:layout_height="@dimen/_30sdp"
-        android:layout_marginStart="49dp"
+        <ImageView
+            android:id="@+id/imageLeft"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:background="@drawable/rotateleft"
+            android:backgroundTint="@color/grey_40" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:layout_below="@+id/imageLeft"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:text="@string/left"
+            android:textAlignment="center"
+            android:textColor="@color/white" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl2"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_35sdp"
         android:layout_marginBottom="@dimen/_40sdp"
-        android:background="@drawable/rotateright"
-        android:backgroundTint="@color/grey_40"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/rotateleft" />
+        app:layout_constraintStart_toEndOf="@+id/rl1">
 
-<!--    <androidx.appcompat.widget.AppCompatButton-->
-<!--        android:id="@+id/imageDelete"-->
-<!--        android:layout_width="@dimen/_30sdp"-->
-<!--        android:layout_height="@dimen/_30sdp"-->
-<!--        android:layout_marginStart="@dimen/_30sdp"-->
-<!--        android:layout_marginBottom="@dimen/_40sdp"-->
-<!--        android:background="@drawable/delete_cropped"-->
-<!--        android:backgroundTint="@color/grey_40"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toEndOf="@+id/imageRotate" />-->
+        <ImageView
+            android:id="@+id/imageRight"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:background="@drawable/rotateright"
+            android:backgroundTint="@color/grey_40" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/imageReset"
-        android:layout_width="@dimen/_30sdp"
-        android:layout_height="@dimen/_30sdp"
-        android:layout_marginStart="49dp"
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:layout_below="@+id/imageRight"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:text="@string/right"
+            android:textAlignment="center"
+            android:textColor="@color/white" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl3"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_35sdp"
         android:layout_marginBottom="@dimen/_40sdp"
-        android:background="@drawable/crop"
-        android:backgroundTint="@color/grey_40"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageRotate" />
+        app:layout_constraintStart_toEndOf="@+id/rl2">
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/done"
-        android:layout_width="@dimen/_30sdp"
-        android:layout_height="@dimen/_30sdp"
-        android:layout_marginStart="49dp"
+        <ImageView
+            android:id="@+id/imageCrop"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:background="@drawable/crop"
+            android:backgroundTint="@color/grey_40" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:layout_below="@+id/imageCrop"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:text="@string/crop"
+            android:textAlignment="center"
+            android:textColor="@color/white" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl4"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_35sdp"
         android:layout_marginBottom="@dimen/_40sdp"
-        android:background="@drawable/check"
-        android:backgroundTint="@color/grey_40"
-        android:textColor="@drawable/button_text"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageReset" />
+        app:layout_constraintStart_toEndOf="@+id/rl3">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/_20sdp"
-        android:layout_marginStart="55dp"
-        android:layout_marginBottom="@dimen/_10sdp"
-        android:text="@string/left"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rotateleft"
-        app:layout_constraintVertical_bias="0.384" />
+        <ImageView
+            android:id="@+id/imageDone"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:background="@drawable/check"
+            android:backgroundTint="@color/grey_40" />
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/_20sdp"
-        android:layout_marginStart="63dp"
-        android:layout_marginBottom="@dimen/_10sdp"
-        android:text="Right"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView3"
-        app:layout_constraintTop_toBottomOf="@+id/imageRotate"
-        app:layout_constraintVertical_bias="0.392" />
-
-<!--    <TextView-->
-<!--        android:id="@+id/textView5"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="@dimen/_20sdp"-->
-<!--        android:layout_marginStart="@dimen/_30sdp"-->
-<!--        android:layout_marginBottom="@dimen/_10sdp"-->
-<!--        android:text="Delete"-->
-<!--        android:textAlignment="center"-->
-<!--        android:textColor="@color/white"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toEndOf="@+id/textView4"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/imageRotate"-->
-<!--        app:layout_constraintVertical_bias="0.392" />-->
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/_20sdp"
-        android:layout_marginStart="58dp"
-        android:layout_marginBottom="@dimen/_10sdp"
-        android:text="@string/crop"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView4"
-        app:layout_constraintTop_toBottomOf="@+id/imageReset" />
-
-    <TextView
-        android:id="@+id/textView7"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/_20sdp"
-        android:layout_marginStart="55dp"
-        android:layout_marginBottom="@dimen/_10sdp"
-        android:text="@string/done"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/textView6"
-        app:layout_constraintTop_toBottomOf="@+id/done" />
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:layout_below="@+id/imageDone"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:text="@string/done"
+            android:textAlignment="center"
+            android:textColor="@color/white" />
+    </RelativeLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

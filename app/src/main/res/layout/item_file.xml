@@ -8,7 +8,7 @@
     android:backgroundTint="#ECF5F8"
     android:padding="@dimen/_15sdp"
     android:layout_marginStart="@dimen/_20sdp"
-    android:layout_marginEnd="@dimen/_35sdp"
+    android:layout_marginEnd="@dimen/_25sdp"
     android:layout_marginBottom="@dimen/_10sdp"
     app:cardCornerRadius="@dimen/_10sdp"
     >

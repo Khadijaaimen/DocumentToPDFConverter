@@ -20,8 +20,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.budiyev.android.codescanner.CodeScanner;
@@ -30,6 +32,7 @@ import com.budiyev.android.codescanner.DecodeCallback;
 import com.google.zxing.Result;
 
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
 
 public class QRcode extends AppCompatActivity {
     private CodeScanner mCodeScanner;
@@ -182,8 +185,7 @@ public class QRcode extends AppCompatActivity {
 
         AppCompatButton _dialogQrShare = MyDialog.findViewById(R.id._dialogQrsave);
         AppCompatButton qrcopy = MyDialog.findViewById(R.id.qrcopy);
-        AppCompatTextView _dialogIVQR = MyDialog.findViewById(R.id._dialogIVQR);
-
+        TextView _dialogIVQR = MyDialog.findViewById(R.id._dialogIVQR);
 
         _dialogQrShare.setEnabled(true);
         qrcopy.setEnabled(true);

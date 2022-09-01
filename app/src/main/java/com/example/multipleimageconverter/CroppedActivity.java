@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,8 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CroppedActivity extends AppCompatActivity {
     private CropImageView cropperView;
-    private Button rotateLeft;
-    private Button done;
+    RelativeLayout r1, r2, r3, r4;
     private int processedImage = 0;
     private final Context context = this;
     ImageView nextButton, imageReverse;
@@ -49,7 +49,6 @@ public class CroppedActivity extends AppCompatActivity {
     private ArrayList<Uri> croppedUriList = new ArrayList<>();
     String cameraValueIntent;
     ArrayList<Rect> cropRects = new ArrayList<>();
-    TextView textView7;
 
     InterstitialAd mInterstitialAd;
     Boolean isChecked = false, isButtonClicked;
@@ -97,10 +96,15 @@ public class CroppedActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cropped_test);
 
-        done = findViewById(R.id.done);
-        textView7 = findViewById(R.id.textView7);
-        rotateLeft = findViewById(R.id.rotateleft);
-        rotateLeft.setOnClickListener(new View.OnClickListener() {
+        r4 = findViewById(R.id.rl4);
+        r3 = findViewById(R.id.rl3);
+        r2 = findViewById(R.id.rl2);
+        r1 = findViewById(R.id.rl1);
+
+        ImageView rotateLeft = findViewById(R.id.imageLeft);
+        ImageView rotateRight = findViewById(R.id.imageRight);
+
+        r1.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("ResourceAsColor")
             @Override
             public void onClick(View view) {
@@ -110,19 +114,21 @@ public class CroppedActivity extends AppCompatActivity {
                 cropperView.setRotationY(0);
             }
         });
-        nextButton = findViewById(R.id.imageview);
+
+        nextButton = findViewById(R.id.imageForward);
 
         currentStateCount = findViewById(R.id.currentStateCount);
         Log.i("procee", "process image we got is :" + processedImage);
-        Button imageReset = findViewById(R.id.imageReset);
-//        Button imageDelete = findViewById(R.id.imageDelete);
-        Button imageRotate = findViewById(R.id.imageRotate);
-        imageRotate.setOnClickListener(view -> {
+
+
+        r2.setOnClickListener(view -> {
+            rotateRight.setBackgroundResource(R.drawable.rotate_right_colored);
             cropperView.rotateImage(90);
             cropperView.setRotationX(0);
             cropperView.setRotationY(0);
         });
-        imageReverse = findViewById(R.id.imageReverse);
+
+        imageReverse = findViewById(R.id.imageBackward);
         imageReverse.setVisibility(View.GONE);
         cropperView = findViewById(R.id.cropperView);
         Bundle extras = getIntent().getExtras();
@@ -151,8 +157,7 @@ public class CroppedActivity extends AppCompatActivity {
             nextButton.setVisibility(View.GONE);
             imageReverse.setVisibility(View.GONE);
             currentStateCount.setVisibility(View.GONE);
-            done.setVisibility(View.VISIBLE);
-            textView7.setVisibility(View.VISIBLE);
+            r4.setVisibility(View.VISIBLE);
         }
 
         isButtonClicked = AppPreferences.isButtonCLicked(getApplication());
@@ -168,106 +173,104 @@ public class CroppedActivity extends AppCompatActivity {
         }
 
         currentStateCount.setText(imageCount + "/" + selectedUriList.size());
-        done.setOnClickListener(new View.OnClickListener() {
+        r4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!isButtonClicked) {
-                    if (mInterstitialAd != null) {
-                        mInterstitialAd.show(CroppedActivity.this);
+                if (mInterstitialAd != null) {
+                    mInterstitialAd.show(CroppedActivity.this);
 
-                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
-                            @Override
-                            public void onAdDismissedFullScreenContent() {
-                                super.onAdDismissedFullScreenContent();
-                                if (cameraValueIntent != null) {
-                                    Bitmap croppedBitmap = cropperView.getCroppedImage();
+                    mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                        @Override
+                        public void onAdDismissedFullScreenContent() {
+                            super.onAdDismissedFullScreenContent();
+                            if (cameraValueIntent != null) {
+                                Bitmap croppedBitmap = cropperView.getCroppedImage();
 
-                                    // file name will be current time in millis which will always be unique
-                                    String fileName = System.currentTimeMillis() + ".png";
-                                    File savedFile = bitmapToFile(croppedBitmap, fileName);
+                                // file name will be current time in millis which will always be unique
+                                String fileName = System.currentTimeMillis() + ".png";
+                                File savedFile = bitmapToFile(croppedBitmap, fileName);
 
-                                    // get uri from file and add it to cropped uri list
-                                    croppedUriList.add(Uri.fromFile(savedFile));
-                                    selectedUriList.set(processedImage, Uri.fromFile(savedFile));
+                                // get uri from file and add it to cropped uri list
+                                croppedUriList.add(Uri.fromFile(savedFile));
+                                selectedUriList.set(processedImage, Uri.fromFile(savedFile));
 
-                                    Intent intent = new Intent(context, FilterActivityForTesting.class);
-                                    Bundle bundle = new Bundle();
-                                    // send croppedUriList to next activity
-                                    bundle.putParcelableArrayList("mycroppedlist", selectedUriList);
-                                    intent.putExtras(bundle);
+                                Intent intent = new Intent(context, FilterActivityForTesting.class);
+                                Bundle bundle = new Bundle();
+                                // send croppedUriList to next activity
+                                bundle.putParcelableArrayList("mycroppedlist", selectedUriList);
+                                intent.putExtras(bundle);
 
-                                    // send croppedUriList to next activity
-                                    startActivity(intent);
-                                } else if (selectedUriList.size() == 1) {
-                                    Bitmap croppedBitmap = cropperView.getCroppedImage();
+                                // send croppedUriList to next activity
+                                startActivity(intent);
+                            } else if (selectedUriList.size() == 1) {
+                                Bitmap croppedBitmap = cropperView.getCroppedImage();
 
-                                    // file name will be current time in millis which will always be unique
-                                    String fileName = System.currentTimeMillis() + ".png";
-                                    File savedFile = bitmapToFile(croppedBitmap, fileName);
-                                    // get uri from file and add it to cropped uri list
-                                    selectedUriList.set(processedImage, Uri.fromFile(savedFile));
-                                    Intent intent = new Intent(context, FilterActivityForTesting.class);
-                                    Bundle bundle = new Bundle();
-                                    // send croppedUriList to next activity
-                                    bundle.putParcelableArrayList("mycroppedlist", selectedUriList);
-                                    intent.putExtras(bundle);
-                                    // send croppedUriList to next activity
-                                    startActivity(intent);
-                                } else {
-                                    extracted();
-                                }
-                                mInterstitialAd = null;
-                                setAds();
+                                // file name will be current time in millis which will always be unique
+                                String fileName = System.currentTimeMillis() + ".png";
+                                File savedFile = bitmapToFile(croppedBitmap, fileName);
+                                // get uri from file and add it to cropped uri list
+                                selectedUriList.set(processedImage, Uri.fromFile(savedFile));
+                                Intent intent = new Intent(context, FilterActivityForTesting.class);
+                                Bundle bundle = new Bundle();
+                                // send croppedUriList to next activity
+                                bundle.putParcelableArrayList("mycroppedlist", selectedUriList);
+                                intent.putExtras(bundle);
+                                // send croppedUriList to next activity
+                                startActivity(intent);
+                            } else {
+                                extracted();
                             }
+                            mInterstitialAd = null;
+                            setAds();
+                        }
 
-                            @Override
-                            public void onAdClicked() {
-                                super.onAdClicked();
-                                isChecked = true;
-                                AppPreferences.setButtonCLicked(getApplication(), true);
-                                if (cameraValueIntent != null) {
-                                    Bitmap croppedBitmap = cropperView.getCroppedImage();
+                        @Override
+                        public void onAdClicked() {
+                            super.onAdClicked();
+                            isChecked = true;
+                            AppPreferences.setButtonCLicked(getApplication(), true);
+                            if (cameraValueIntent != null) {
+                                Bitmap croppedBitmap = cropperView.getCroppedImage();
 
-                                    // file name will be current time in millis which will always be unique
-                                    String fileName = System.currentTimeMillis() + ".png";
-                                    File savedFile = bitmapToFile(croppedBitmap, fileName);
+                                // file name will be current time in millis which will always be unique
+                                String fileName = System.currentTimeMillis() + ".png";
+                                File savedFile = bitmapToFile(croppedBitmap, fileName);
 
-                                    // get uri from file and add it to cropped uri list
-                                    croppedUriList.add(Uri.fromFile(savedFile));
-                                    selectedUriList.set(processedImage, Uri.fromFile(savedFile));
+                                // get uri from file and add it to cropped uri list
+                                croppedUriList.add(Uri.fromFile(savedFile));
+                                selectedUriList.set(processedImage, Uri.fromFile(savedFile));
 
-                                    Intent intent = new Intent(context, FilterActivityForTesting.class);
-                                    Bundle bundle = new Bundle();
-                                    // send croppedUriList to next activity
-                                    bundle.putParcelableArrayList("mycroppedlist", selectedUriList);
-                                    intent.putExtras(bundle);
+                                Intent intent = new Intent(context, FilterActivityForTesting.class);
+                                Bundle bundle = new Bundle();
+                                // send croppedUriList to next activity
+                                bundle.putParcelableArrayList("mycroppedlist", selectedUriList);
+                                intent.putExtras(bundle);
 
-                                    // send croppedUriList to next activity
-                                    startActivity(intent);
-                                } else if (selectedUriList.size() == 1) {
-                                    Bitmap croppedBitmap = cropperView.getCroppedImage();
+                                // send croppedUriList to next activity
+                                startActivity(intent);
+                            } else if (selectedUriList.size() == 1) {
+                                Bitmap croppedBitmap = cropperView.getCroppedImage();
 
-                                    // file name will be current time in millis which will always be unique
-                                    String fileName = System.currentTimeMillis() + ".png";
-                                    File savedFile = bitmapToFile(croppedBitmap, fileName);
-                                    // get uri from file and add it to cropped uri list
-                                    selectedUriList.set(processedImage, Uri.fromFile(savedFile));
-                                    Intent intent = new Intent(context, FilterActivityForTesting.class);
-                                    Bundle bundle = new Bundle();
-                                    // send croppedUriList to next activity
-                                    bundle.putParcelableArrayList("mycroppedlist", selectedUriList);
-                                    intent.putExtras(bundle);
-                                    // send croppedUriList to next activity
-                                    startActivity(intent);
+                                // file name will be current time in millis which will always be unique
+                                String fileName = System.currentTimeMillis() + ".png";
+                                File savedFile = bitmapToFile(croppedBitmap, fileName);
+                                // get uri from file and add it to cropped uri list
+                                selectedUriList.set(processedImage, Uri.fromFile(savedFile));
+                                Intent intent = new Intent(context, FilterActivityForTesting.class);
+                                Bundle bundle = new Bundle();
+                                // send croppedUriList to next activity
+                                bundle.putParcelableArrayList("mycroppedlist", selectedUriList);
+                                intent.putExtras(bundle);
+                                // send croppedUriList to next activity
+                                startActivity(intent);
 
-                                } else {
-                                    extracted();
-                                }
-                                mInterstitialAd = null;
+                            } else {
+                                extracted();
                             }
-                        });
-                    }
-                } else {
+                            mInterstitialAd = null;
+                        }
+                    });
+                } else{
                     if (cameraValueIntent != null) {
                         Bitmap croppedBitmap = cropperView.getCroppedImage();
 
@@ -287,28 +290,8 @@ public class CroppedActivity extends AppCompatActivity {
 
                         // send croppedUriList to next activity
                         startActivity(intent);
-                    } else if (selectedUriList.size() == 1) {
-                        Bitmap croppedBitmap = cropperView.getCroppedImage();
-
-                        // file name will be current time in millis which will always be unique
-                        String fileName = System.currentTimeMillis() + ".png";
-                        File savedFile = bitmapToFile(croppedBitmap, fileName);
-                        // get uri from file and add it to cropped uri list
-                        selectedUriList.set(processedImage, Uri.fromFile(savedFile));
-                        Intent intent = new Intent(context, FilterActivityForTesting.class);
-                        Bundle bundle = new Bundle();
-                        // send croppedUriList to next activity
-                        bundle.putParcelableArrayList("mycroppedlist", selectedUriList);
-                        intent.putExtras(bundle);
-                        // send croppedUriList to next activity
-                        startActivity(intent);
-
-                    } else {
-                        extracted();
                     }
                 }
-
-
             }
         });
 
@@ -377,17 +360,12 @@ public class CroppedActivity extends AppCompatActivity {
                 Log.i("clicked", "list we got is : " + selectedUriList.size());
 
                 nextButton.setVisibility(View.GONE);
-                done.setVisibility(View.VISIBLE);
-                textView7.setVisibility(View.VISIBLE);
-                cropperView.setImageUriAsync(selectedUriList.get(processedImage));
-                cropperView.setCropRect(cropRects.get(processedImage));
-            } else {
-                cropperView.setImageUriAsync(selectedUriList.get(processedImage));
-                cropperView.setCropRect(cropRects.get(processedImage));
-
+                r4.setVisibility(View.VISIBLE);
             }
+            cropperView.setImageUriAsync(selectedUriList.get(processedImage));
+            cropperView.setCropRect(cropRects.get(processedImage));
         });
-        imageReset.setOnClickListener(new View.OnClickListener() {
+        r3.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.R)
             @Override
             public void onClick(View view) {
@@ -428,8 +406,7 @@ public class CroppedActivity extends AppCompatActivity {
 
 
             if (processedImage <= selectedUriList.size()) {
-                done.setVisibility(View.VISIBLE);
-                textView7.setVisibility(View.VISIBLE);
+                r4.setVisibility(View.VISIBLE);
                 nextButton.setVisibility(View.GONE);
 
 

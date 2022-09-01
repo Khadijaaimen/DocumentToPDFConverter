@@ -11,11 +11,13 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -27,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -65,6 +68,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class DocumentsFragment extends Fragment implements MainRecycleViewAdapter.OnItemClickListener {
     private static final int Merge_Request_CODE = 42;
@@ -72,6 +76,7 @@ public class DocumentsFragment extends Fragment implements MainRecycleViewAdapte
     List<File> pdfArrayList;
     List<File> items = null;
     ProgressBar progressBar;
+
     LinearLayout linearLayoutPlease;
     public static int REQUEST_PERMISSIONS = 1;
     boolean boolean_permission;
@@ -712,61 +717,31 @@ public class DocumentsFragment extends Fragment implements MainRecycleViewAdapte
     }
 
     public ArrayList<File> getfile(File dir) {
-        File listFile[] = dir.listFiles();
+        File[] listFile = dir.listFiles();
         if (listFile != null && listFile.length > 0) {
-            for (int i = 0; i < listFile.length; i++) {
-
-                if (listFile[i].isDirectory()) {
-                    getfile(listFile[i]);
-
+            for (File file : listFile) {
+                if (file.isDirectory()) {
+                    getfile(file);
                 } else {
-
                     boolean booleanpdf = false;
-                    if (listFile[i].getName().endsWith(".pdf")) {
-
+                    if (file.getName().endsWith(".pdf")) {
                         for (int j = 0; j < pdfArrayList.size(); j++) {
-                            if (pdfArrayList.get(j).getName().equals(listFile[i].getName())) {
+                            if (pdfArrayList.get(j).getName().equals(file.getName())) {
                                 booleanpdf = true;
-                            } else {
-
                             }
                         }
-
                         if (booleanpdf) {
                             booleanpdf = false;
                         } else {
-                            pdfArrayList.add(listFile[i]);
+                            pdfArrayList.add(file);
                         }
                     }
                 }
             }
         }
-
 //        linearLayoutPlease.setVisibility(View.GONE);
         return (ArrayList<File>) pdfArrayList;
     }
-
-//
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == REQUEST_PERMISSIONS) {
-//
-//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//
-//                boolean_permission = true;
-//                getfile(dir);
-//
-//                mAdapter = new MainAdapter(getActivity(), pdfArrayList, mOnItemClickListener);
-//                recyclerView2.setAdapter(mAdapter);
-//
-//            } else {
-//                Toast.makeText(getActivity(), "Please allow the permission", Toast.LENGTH_LONG).show();
-//
-//            }
-//        }
-//
-//    }
 
     public ArrayList<File> findPdf(File file) {
         ArrayList<File> arrayList = new ArrayList<>();
@@ -790,9 +765,9 @@ public class DocumentsFragment extends Fragment implements MainRecycleViewAdapte
         recyclerView2.setLayoutManager(new GridLayoutManager(getActivity(), 1));
         pdfArrayList = new ArrayList<>();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R){
-            pdfArrayList.addAll(findPdf(getActivity().getExternalFilesDir(null)));
+            pdfArrayList.addAll(getfile(requireActivity().getExternalFilesDir(null)));
         } else{
-            pdfArrayList.addAll(findPdf(Environment.getExternalStorageDirectory()));
+            pdfArrayList.addAll(getfile(Environment.getExternalStorageDirectory()));
         }
         mAdapter = new MainAdapter(getActivity(), pdfArrayList, mOnItemClickListener);
         recyclerView2.setAdapter(mAdapter);
